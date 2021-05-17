@@ -91,9 +91,9 @@ class GameState():
         self.jump = False
         self.bas = False
         self.additionneur=-8 #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
-        self.tab_pos_nuage = [[400,random.randrange(40, 120, 10)], [700,random.randrange(40, 120, 10)],[1000,random.randrange(40, 120, 10)]]
+        self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]]
         self.tab_type_nuage = [1, 2, 3]
-        self.tab_pos_obstacle = [[400,197], [700,197],[1000,random.randrange(125, 136, 1)]]
+        self.tab_pos_obstacle = [[400,197], [700,197],[1000,random.randrange(130, 136, 1)]]
         self.tab_type_obstacle = [1, 2, 3]
         self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]]
         self.tab_type_sol = [1, 2, 3, 3, 2, 1, 2, 2, 3, 3, 1]
@@ -212,7 +212,7 @@ class GameState():
                 elif(i==2):
                     self.tab_pos_nuage[i][0] = self.tab_pos_nuage[1][0] + x_fen
 
-                self.tab_pos_nuage[i][1] = random.randrange(40, 120, 10)
+                self.tab_pos_nuage[i][1] = random.randrange(24, 178, 11)
                 self.tab_type_nuage[i] = random.randrange(1, 4, 1)  #Nuage aléatoire
 
 
@@ -241,7 +241,7 @@ class GameState():
                 # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
                 self.tab_type_obstacle[i] = random.randrange(1, 4, 1)  #obstacle aléatoire
                 if(self.tab_type_obstacle[i] == 3):
-                    self.tab_pos_obstacle[i][1] = random.randrange(120, 136, 2)
+                    self.tab_pos_obstacle[i][1] = random.randrange(130, 136, 2)
                 else:
                     self.tab_pos_obstacle[i][1] = 197
 
