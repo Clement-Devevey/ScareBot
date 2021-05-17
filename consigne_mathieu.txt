@@ -1,0 +1,11 @@
+Nuage : les faire aller plus ou moins vite en fonction de leur coordonnée y
+saut : s'accroupir fait tomber plus vite
+
+pour les nuages
+8 px au dessus du sol
+24 px au dessous de la fenetre
+entre 1 et 3 nuages en même temps aléatoirement
+
+
+
+score : partie entière +1 de la vitesse /2
