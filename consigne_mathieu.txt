@@ -1,8 +1,3 @@
 saut : s'accroupir fait tomber plus vite
 
-
-
-pour les nuages
-entre 1 et 3 nuages en même temps aléatoirement
-
 Nuage : les faire aller plus ou moins vite en fonction de leur coordonnée y
