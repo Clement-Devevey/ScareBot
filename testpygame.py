@@ -71,10 +71,12 @@ def clean_affichage(screen):
     fenetre.blit(fond_vert, (0,0))
     pygame.display.flip()
 
-
-## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
+## Variables globales pour la vitesse
 jspeed = -16
 speed = 4.5
+
+## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
+
 class GameState():
     def __init__(self):
         self.state = 'menu'
@@ -96,7 +98,7 @@ class GameState():
         self.gravity = 1
         self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]]
         self.tab_type_nuage = [1, 2, 3]
-        self.tab_pos_obstacle = [[400,197], [700,197],[1000,random.randrange(130, 136, 1)]]
+        self.tab_pos_obstacle = [[700,197], [1000,197],[1300,random.randrange(130, 136, 1)]]
         self.tab_type_obstacle = [1, 2, 3]
         self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]]
         self.tab_type_sol = [1, 2, 3, 3, 2, 1, 2, 2, 3, 3, 1]
@@ -144,9 +146,6 @@ class GameState():
         if (self.clean == 0):
             pygame.display.set_caption("Blob Runner")
             self.clean = 1
-        #pos_blob = blob.get_rect();
-        #print(pos_blob.x)
-        #print(pos_blob.y)
         self.Affiche_scene_jeu()
 
         for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
@@ -157,14 +156,7 @@ class GameState():
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 # blob mort
                 self.alive = False
-                self.Affiche_scene_jeu()
-                canal = game_over.play()
-                time.sleep(3)
-                self.state = 'menu'
-                self.score = 0
-                clean_affichage(fenetre)
-                affiche_menu(0)
-                pygame.display.set_caption("Menu de la ScareBot")
+
 
             if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.crouch == False:
                 self.jump = True
@@ -177,10 +169,10 @@ class GameState():
                 self.crouch = True
 
             if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
-                self.fall = True  
+                self.fall = True
                 self.crouch= True
 
-            if event.type == KEYUP and event.key == K_DOWN and self.jump == False:
+            if event.type == KEYUP and event.key == K_DOWN:
                 self.crouch = False
 
 
@@ -268,11 +260,11 @@ class GameState():
             if(self.tab_pos_obstacle[i][0]<-47):  #Si un obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
                 #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
                 if(i==0):
-                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[2][0]+random.randrange(x_fen, x_fen+100, 5)
+                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[2][0]+random.randrange(x_fen, 2*x_fen, 5)
                 elif(i==1):
-                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[0][0]+random.randrange(x_fen, x_fen+100, 5)
+                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[0][0]+random.randrange(x_fen, 2*x_fen+100, 5)
                 elif(i==2):
-                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[1][0]+random.randrange(x_fen, x_fen+100, 5)
+                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[1][0]+random.randrange(x_fen, 2*x_fen+100, 5)
 
                 # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
                 self.tab_type_obstacle[i] = random.randrange(1, 4, 1)  #obstacle aléatoire
@@ -299,7 +291,7 @@ class GameState():
                 self.tab_pos_sol[i][0] = 330 + (self.tab_pos_sol[i][0]+33)
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
 
-        # Affichage du blob :
+        ## Affichage du blob : (saut)
         if (self.alive):
             if(self.jump):
                 self.blob_y= self.blob_y + self.jspeed
@@ -313,13 +305,14 @@ class GameState():
                 else:
                     self.jspeed=self.jspeed + self.gravity
 
-                if(self.blob_y>180):
+                if(self.blob_y>=180):
                     self.blob_y=180
                     self.jspeed= jspeed
                     self.jump = False
                     self.stopjump = False
-                    self.fall = False  
-                
+                    self.fall = False
+
+
                 if self.fall:
                     fenetre.blit(blob_crouch, (self.blob_x, self.blob_y+9))
                 else:
@@ -339,26 +332,17 @@ class GameState():
         else: #si le blob est mort
             fenetre.blit(blob_dead, (self.blob_x, self.blob_y))
             fenetre.blit(game_over_texte, (50,90))
-            #Reset obstacle :
-            self.tab_pos_obstacle = [[400,197], [600,197],[800,random.randrange(120, 136, 2)]]
-            self.tab_type_obstacle = [1, 2, 3]
-            #Remise à 0 des éléments si on mort pendant le saut
-            self.jump = False
-            self.speed = speed
-            #Remise à des éléments si on meurt accroupi :
-            self.crouch=False
-            #Remise à l'état initial de la position du blob
-            self.blob_x = 10
-            self.blob_y = 180
+            pygame.display.flip() # Pour afficher le text du game over
+            canal = game_over.play()
+            time.sleep(3)
+            clean_affichage(fenetre)
+            pygame.display.set_caption("Menu de la ScareBot")
+            self.__init__()
 
         pygame.display.flip()
 
 
 ## Fin de la classe GameState
-
-
-
-
 
 ## Variables
 continuer = 1
