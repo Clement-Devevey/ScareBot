@@ -46,10 +46,9 @@ class Blob(pygame.sprite.Sprite):
 
     def update(self):
         self.rect = self.image.get_rect()
-        self.rect.x += self.blob_x
-        self.rect.y += self.blob_y
-        self.mask = pygame.mask.from_surface(self.image)
-        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
+        self.rect.x = self.blob_x
+        self.rect.y = self.blob_y
+        #pygame.draw.rect(fenetre,(0,0,255),(self.rect))
 
 
 blob = Blob()
@@ -65,67 +64,73 @@ class Blob_crouch(pygame.sprite.Sprite):
 
     def update(self):
         self.rect = self.image.get_rect()
-        self.rect.x += self.x
-        self.rect.y += self.y
-        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.x = self.x
+        self.rect.y = self.y
 
 
 
 blob_crouch = Blob_crouch()
 
-class Large_object(pygame.sprite.Sprite):
+class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprite)
-        self.image = pygame.image.load("./Resources/images/large object.png").convert_alpha()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.x = 0
+        self.large = pygame.image.load("./Resources/images/large object.png").convert_alpha()
+        self.small = pygame.image.load("./Resources/images/small object.png").convert_alpha()
+        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha()
+        self.mask = pygame.mask.from_surface(self.small) #initialisation à un petit obstacle
+        self.rect =  self.small.get_rect()
+        self.x = random.randrange(x_fen+200, 2*x_fen, 2)
         self.y = 197
+        self.type = 1 #0: large , 1: small, 2 : fantome
 
     def update(self):
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.rect.x += self.x
-        self.rect.y += self.y
-        self.mask = pygame.mask.from_surface(self.image)
-        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
+        if (self.type == 0):
+            self.mask = pygame.mask.from_surface(self.large)
+            self.rect =  self.large.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            #fenetre.blit(self.large, (self.x, self.y))
+
+        elif (self.type == 1):
+            self.mask = pygame.mask.from_surface(self.small)
+            self.rect =  self.small.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            #fenetre.blit(self.small, (self.x, self.y))
+
+        elif (self.type == 2):
+            self.mask = pygame.mask.from_surface(self.fantome)
+            self.rect =  self.fantome.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            #fenetre.blit(self.fantome, (self.x, self.y))
 
 
-class Small_object(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(all_sprite)
-        self.image = pygame.image.load("./Resources/images/small object.png").convert_alpha()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.x = 0
-        self.y = 197
-        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
+    def update_avec_blit(self):
 
-    def update(self):
-        self.rect = self.image.get_rect()
-        self.rect.x += self.x
-        self.rect.y += self.y
-        self.mask = pygame.mask.from_surface(self.image)
-        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
+        if (self.type == 0):
+            self.mask = pygame.mask.from_surface(self.large)
+            self.rect =  self.large.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            fenetre.blit(self.large, (self.x, self.y))
+
+        elif (self.type == 1):
+            self.mask = pygame.mask.from_surface(self.small)
+            self.rect =  self.small.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            fenetre.blit(self.small, (self.x, self.y))
+
+        elif (self.type == 2):
+            self.mask = pygame.mask.from_surface(self.fantome)
+            self.rect =  self.fantome.get_rect()
+            self.rect.x = self.x
+            self.rect.y = self.y
+            fenetre.blit(self.fantome, (self.x, self.y))
 
 
-class Fantome(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(all_sprite)
-        self.image = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.x = 0
-        self.y = 0
-
-    def update(self):
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.rect.x += self.x
-        self.rect.y += self.y
-        self.mask = pygame.mask.from_surface(self.image)
-        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
-
+obstacle = Obstacle()
 
 ## Icon de la fenêtre et nom de la fenêtre
 pygame.display.set_icon(blob.image)
@@ -203,9 +208,6 @@ class GameState():
         self.gravity = 1
         self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]]
         self.tab_type_nuage = [1, 2, 3]
-        self.obstacle = Small_object()
-        self.tab_pos_obstacle = [700,197]
-        self.tab_type_obstacle = 1
         self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]]
         self.tab_type_sol = [1, 2, 3, 3, 2, 1, 2, 2, 3, 3, 1]
 
@@ -358,37 +360,23 @@ class GameState():
         ## affichage obstacles et fantome
 
 #En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
-            if(self.tab_type_obstacle == 1):
-                self.obstacle.x = self.tab_pos_obstacle[0]
-                self.obstacle.y =self.tab_pos_obstacle[1]
-                fenetre.blit(self.obstacle.image, self.tab_pos_obstacle)
-            elif(self.tab_type_obstacle==2):
-                self.obstacle.x = self.tab_pos_obstacle[0]
-                self.obstacle.y =self.tab_pos_obstacle[1]
-                fenetre.blit(self.obstacle.image, self.tab_pos_obstacle)
-            elif(self.tab_type_obstacle == 3):
-                self.obstacle.x = self.tab_pos_obstacle[0]
-                self.obstacle.y =self.tab_pos_obstacle[1]
-                fenetre.blit(self.obstacle.image, self.tab_pos_obstacle)
 
-            self.tab_pos_obstacle[0] = self.tab_pos_obstacle[0]-self.speed #Fais bouger l'élément vers la gauche
-
-            if(self.tab_pos_obstacle[0]<-47):  #Si un obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
-                #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
-                self.tab_pos_obstacle[0] = self.tab_pos_obstacle[0]+random.randrange(x_fen+10, 2*x_fen, 5)
-
-
-                # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
-                self.tab_type_obstacle = random.randrange(1, 4, 1)  #obstacle aléatoire
-                if(self.tab_type_obstacle == 3):
-                    self.tab_pos_obstacle[1] = random.randrange(130, 136, 2)
-                    self.obstacle = Fantome()
-                elif(self.tab_type_obstacle == 2):
-                    self.tab_pos_obstacle[1] = 197
-                    self.obstacle = Large_object()
-                elif(self.tab_type_obstacle == 1):
-                    self.tab_pos_obstacle[1] = 197
-                    self.obstacle = Small_object()
+        obstacle.update_avec_blit()
+        obstacle.x = obstacle.x- self.speed #Fais bouger l'élément vers la gauche
+        if(obstacle.x<-50):  #Si un obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
+            #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
+            obstacle.x = random.randrange(x_fen+50, 3*x_fen, 5)
+            # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
+            obstacle.type = random.randrange(0, 3, 1)  #obstacle aléatoire
+            if(obstacle.type == 2):
+                obstacle.y = random.randrange(130, 136, 2)
+                #self.obstacle = Fantome()
+            elif(obstacle.type == 1):
+                obstacle.y  = 197
+                #self.obstacle = Large_object()
+            elif(obstacle.type == 0):
+                obstacle.y  = 197
+                #self.obstacle = Small_object()
 
 
         ## affichage du sol
@@ -402,9 +390,7 @@ class GameState():
                 fenetre.blit(sol2, self.tab_pos_sol[i])
             elif(self.tab_type_sol[i] == 3):
                 fenetre.blit(sol3, self.tab_pos_sol[i])
-
             self.tab_pos_sol[i][0] = self.tab_pos_sol[i][0]-self.speed #Fais bouger le sol vers la gauche
-
             if(self.tab_pos_sol[i][0]<=-33):  #Si un sol est en dehors de la zone de l'écran, on le réaffiche tout à droite
                 self.tab_pos_sol[i][0] = 330 + (self.tab_pos_sol[i][0]+33)
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
@@ -463,6 +449,7 @@ class GameState():
                 f_high_score.write(str(self.score))
                 f_high_score.close()
             pygame.event.set_blocked([KEYDOWN, KEYUP])
+            obstacle.__init__()
             fenetre.blit(blob_dead, (blob.blob_x, blob.blob_y))
             fenetre.blit(game_over_texte, (50,90))
             pygame.display.flip() # Pour afficher le text du game over
@@ -472,17 +459,18 @@ class GameState():
             pygame.display.set_caption("Menu de la ScareBot")
             self.__init__()
             self.clean = 1
+        pygame.display.flip()
 
         all_sprite.update()
         if(self.crouch):
-            if(pygame.sprite.collide_mask(blob_crouch, self.obstacle)):
+            if(pygame.sprite.collide_mask(blob_crouch, obstacle)):
                 self.alive = False
         else:
-            if(pygame.sprite.collide_mask(blob, self.obstacle)):
+            if(pygame.sprite.collide_mask(blob, obstacle)):
                 self.alive = False
 
 
-        pygame.display.flip()
+
 
 
 ## Fin de la classe GameState
