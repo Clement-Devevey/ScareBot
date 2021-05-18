@@ -8,9 +8,8 @@ pygame.init()
 clock = pygame.time.Clock()
 NOMBRE_DE_CHOIX_MENU = 2 # les deux choix du menu sont Play ou Quit
 
-##Test rebase
 ## Création de la fenêtre (en pixels)
-x_fen = 350
+x_fen = 313
 y_fen = 245
 fenetre = pygame.display.set_mode((x_fen,y_fen))
 
@@ -90,7 +89,7 @@ class GameState():
         self.alive = True
         self.stopjump = False
         self.jump = False
-        self.fall = False  
+        self.fall = False
         self.crouch = False
         self.jspeed= jspeed #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
         self.gravity = 1
@@ -177,7 +176,7 @@ class GameState():
                 self.crouch = True
 
             if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
-                self.fall = True  
+                self.fall = True
 
             if event.type == KEYUP and event.key == K_DOWN and self.jump == False:
                 self.crouch = False
@@ -191,7 +190,6 @@ class GameState():
             self.game()
 
     def ynuage(self, a): #Permet d'éviter de faire spawn un nuage aux même coordonnées d'un autre nuage !
-        print(a)
         #Y_a_placer = self.tab_pos_nuage[a][1]
         if (a<=0):
             Y1 = self.tab_pos_nuage[1][1]
@@ -217,7 +215,7 @@ class GameState():
         fenetre.blit(fond_vert, (0,0))
 
         ##Affiche du score :
-        self.score=self.score+ceil(self.speed/2) #partie entière de la vitesse/2 arrondi au supérieur
+        self.score=self.score+ceil(self.speed/10) # partie entière de la vitesse/2 arrondi au supérieur
         texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (200, 10))
 
@@ -230,16 +228,26 @@ class GameState():
             elif(self.tab_type_nuage[i] == 3):
                 fenetre.blit(cloud3, self.tab_pos_nuage[i])
 
-            self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0]-int(0.004*(random.randrange(75, 100, 1))*self.speed) #Fais bouger le nuage vers la gauche
-
             if(self.tab_pos_nuage[i][0]<=-141):  #Si un nuage est en dehors de la zone de l'écran, on le réaffiche tout à droite
-                #Coordonné X : On doit les faire spawn en dehors de l'écran.
+                # Coordonné X : On doit les faire spawn en dehors de l'écran.
                 self.tab_pos_nuage[i][0] = random.randrange(x_fen, 2*x_fen, 20)
-                #Coordonnée Y :
+                # Coordonnée Y :
                 self.tab_pos_nuage[i][1] = random.randrange(24, 178, 11)
-                #On doit checker qu'il ne spawn pas sur un autre nuage >_<
+                # On doit checker qu'il ne spawn pas sur un autre nuage >_<
                 self.ynuage(i)  #Vérifie la coordonnée Y pour ne pas avoir 2 nuages l'un sur l'autre !
                 self.tab_type_nuage[i] = random.randrange(1, 4, 1)  #Nuage aléatoire
+
+            # Vitesse en fonction de sa coordonnée y :
+            if(self.tab_pos_nuage[i][1] < 76):
+                self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0] - int(0.2*self.speed) #int(0.004*(50->100)*self.speed)
+
+            elif(self.tab_pos_nuage[i][1] >= 76 and self.tab_pos_nuage[i][1] < 127):
+                self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0] - int(0.3*self.speed)
+
+            elif(self.tab_pos_nuage[i][1] >= 127):
+                self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0]-int(0.4*self.speed)
+
+
 
 
         ## affichage obstacles et fantome
@@ -308,7 +316,7 @@ class GameState():
                     self.jspeed= jspeed
                     self.jump = False
                     self.stopjump = False
-                    self.fall = False  
+                    self.fall = False
                 fenetre.blit(blob, (self.blob_x, self.blob_y))
 
 
