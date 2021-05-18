@@ -8,4 +8,5 @@ s’appelle Parallaxe. Le score est affiché en haut à droite et s’incrément
 pas rencontré d’obstacle. S’il entre en collision avec un obstacle, il s’arrête et le texte « Game
 Over » apparaît.
 </p>
-Copyright : Scaredom @Mathieu SEMIN
+
+<p>&copy; 2021 Scaredom @Mathieu SEMIN</p>
