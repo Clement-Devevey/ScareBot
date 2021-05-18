@@ -112,6 +112,11 @@ class GameState():
         self.tab_type_obstacle = [1, 2, 3]
         self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]]
         self.tab_type_sol = [1, 2, 3, 3, 2, 1, 2, 2, 3, 3, 1]
+        self.bbase_hbox = [52,31]
+        self.bcrouch_hbox = [52,22]
+        self.f_hbox = [41,52]
+        self.so_hbox = [31,15]
+        self.lo_hbox = [47,16]
 
     def menu(self):
         self.clean = 0
@@ -215,6 +220,35 @@ class GameState():
                 self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11)
                 #Y_a_placer = self.tab_pos_nuage[a][1]
 
+
+    def overlaps(self,a, b):
+        return  (min(a[1], b[1]) - max(a[0], b[0])) > 0
+
+    def check_hitboxes(self):
+        if self.crouch :
+            blob_hbox=[[self.blob_x, self.blob_x + self.bcrouch_hbox[0] ], [self.blob_y + 9, self.blob_y + 9 + self.bcrouch_hbox[1]]]
+        else : 
+            blob_hbox=[[self.blob_x, self.blob_x + self.bbase_hbox[0] ], [self.blob_y, self.blob_y + self.bbase_hbox[1]]]
+            print(blob_hbox)
+        for i in range(3):
+            if self.tab_type_obstacle[i] == 1 :
+
+                obs_hbox = [[self.tab_pos_obstacle[i][0],self.tab_pos_obstacle[i][0] + self.so_hbox[0]], [self.tab_pos_obstacle[i][1],self.tab_pos_obstacle[i][1] + self.so_hbox[1]] ]
+                print()
+                if self.overlaps(blob_hbox[0], obs_hbox[0]) and self.overlaps(blob_hbox[1], obs_hbox[1]):
+                    self.alive = False
+
+            elif self.tab_type_obstacle[i] == 2 :
+                obs_hbox = [[self.tab_pos_obstacle[i][0],self.tab_pos_obstacle[i][0] + self.lo_hbox[0]], [self.tab_pos_obstacle[i][1],self.tab_pos_obstacle[i][1] + self.lo_hbox[1]] ]
+                if self.overlaps(blob_hbox[0], obs_hbox[0]) and self.overlaps(blob_hbox[1], obs_hbox[1]):
+                    self.alive = False
+
+            else :
+                obs_hbox = [[self.tab_pos_obstacle[i][0],self.tab_pos_obstacle[i][0] + self.f_hbox[0]], [self.tab_pos_obstacle[i][1],self.tab_pos_obstacle[i][1] + self.f_hbox[1]] ]
+                if self.overlaps(blob_hbox[0], obs_hbox[0]) and self.overlaps(blob_hbox[1], obs_hbox[1]):
+                    self.alive = False
+
+
     def Affiche_scene_jeu(self):
         fenetre.blit(fond_vert, (0,0))
 
@@ -301,7 +335,8 @@ class GameState():
                 self.tab_pos_sol[i][0] = 330 + (self.tab_pos_sol[i][0]+33)
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
 
-        ## Affichage du blob : (saut)
+        # Affichage du blob :
+        self.check_hitboxes()
         if (self.alive):
             if(self.jump):
                 self.blob_y= self.blob_y + self.jspeed
