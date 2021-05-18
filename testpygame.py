@@ -13,12 +13,10 @@ x_fen = 313
 y_fen = 245
 fenetre = pygame.display.set_mode((x_fen,y_fen))
 
-chemin_images = "C:\\Users\\damde\\Desktop\\CLEMENT_PING\\gameboy\\images\\"
 ## Chargement des images
+
 fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
 menu_fond = pygame.image.load("./Resources/images/menu.png").convert_alpha()
-blob = pygame.image.load("./Resources/images/blob_base.png").convert_alpha()
-blob_crouch = pygame.image.load("./Resources/images/blob crouch.png").convert_alpha()
 curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png").convert_alpha()
 sol1 = pygame.image.load("./Resources/images/sol 1.png").convert_alpha()
 sol2 = pygame.image.load("./Resources/images/sol 2.png").convert_alpha()
@@ -28,13 +26,108 @@ game_over_texte = pygame.image.load("./Resources/images/game over gameboy.png").
 cloud1 = pygame.image.load("./Resources/images/cloud 1.png").convert_alpha()
 cloud2 = pygame.image.load("./Resources/images/cloud 2.png").convert_alpha()
 cloud3 = pygame.image.load("./Resources/images/cloud 3.png").convert_alpha()
-large_object= pygame.image.load("./Resources/images/large object.png").convert_alpha()
-small_object= pygame.image.load("./Resources/images/small object.png").convert_alpha()
-fantome= pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha()
 
+
+
+## Chargement des sprites
+all_sprite = pygame.sprite.Group()
+
+class Blob(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprite)
+        self.image = pygame.image.load("./Resources/images/blob_base.png").convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.blob_x = 10
+        self.blob_y = 180
+        self.rect.x += self.blob_x
+        self.rect.y += self.blob_y
+
+
+    def update(self):
+        self.rect = self.image.get_rect()
+        self.rect.x += self.blob_x
+        self.rect.y += self.blob_y
+        self.mask = pygame.mask.from_surface(self.image)
+        fenetre.blit(self.image, (self.blob_x, self.blob_y))
+
+
+blob = Blob()
+
+class Blob_crouch(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprite)
+        self.image = pygame.image.load("./Resources/images/blob crouch.png").convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.x = 0
+        self.y = 0
+
+    def update(self):
+        self.rect = self.image.get_rect()
+        self.rect.x += self.x
+        self.rect.y += self.y
+        self.mask = pygame.mask.from_surface(self.image)
+        fenetre.blit(self.image, (self.x, self.y))
+
+
+blob_crouch = Blob_crouch()
+
+class Large_object(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprite)
+        self.image = pygame.image.load("./Resources/images/large object.png").convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.x = 0
+        self.y = 197
+
+    def update(self):
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x += self.x
+        self.rect.y += self.y
+        self.mask = pygame.mask.from_surface(self.image)
+
+large_object = Large_object()
+
+class Small_object(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprite)
+        self.image = pygame.image.load("./Resources/images/small object.png").convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.x = 0
+        self.y = 197
+
+    def update(self):
+        self.rect = self.image.get_rect()
+        self.rect.x += self.x
+        self.rect.y += self.y
+        self.mask = pygame.mask.from_surface(self.image)
+
+small_object = Small_object()
+
+class Fantome(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprite)
+        self.image = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.x = 0
+        self.y = 0
+
+    def update(self):
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect()
+        self.rect.x += self.x
+        self.rect.y += self.y
+        self.mask = pygame.mask.from_surface(self.image)
+
+fantome = Fantome()
 
 ## Icon de la fenêtre et nom de la fenêtre
-pygame.display.set_icon(blob)
+pygame.display.set_icon(blob.image)
 pygame.display.set_caption("Menu de la ScareBot")
 
 ## Chargement des musiques
@@ -98,13 +191,8 @@ class GameState():
         self.state = 'menu'
         self.choix_menu = 0
         self.clean = 0
-        self.x_fen = 313
         self.speed = speed
-        self.y_fen = 245
         self.score=0
-        self.i=0 #Boucle affichage blob
-        self.blob_x = 10
-        self.blob_y = 180
         self.alive = True
         self.stopjump = False
         self.jump = False
@@ -124,9 +212,15 @@ class GameState():
         self.so_hbox = [31,15]
         self.lo_hbox = [47,16]
 
+
+
     def menu(self):
-        self.clean = 0
+        if (self.clean == 1):
+            self.clean = 0
+            pygame.event.set_allowed([KEYDOWN, KEYUP])
+
         affiche_menu(self.choix_menu)
+
         for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
             if event.type == QUIT:     #Si un de ces événements est de type QUIT
                 pygame.quit()
@@ -145,7 +239,8 @@ class GameState():
                 self.choix_menu = (self.choix_menu-1)%NOMBRE_DE_CHOIX_MENU
                 canal = select.play()
 
-            if event.type == KEYDOWN and event.key == K_RETURN: #K RETURN = entrée
+            if event.type == KEYDOWN and event.key == K_RETURN and self.state != 'game': #K RETURN = entrée
+                pygame.event.set_blocked([KEYDOWN, KEYUP])
                 canal = valide.play()
                 time.sleep(0.5)
 
@@ -165,35 +260,36 @@ class GameState():
         # change titre fenêtre
         if (self.clean == 0):
             pygame.display.set_caption("Blob Runner")
+            pygame.event.set_allowed([KEYDOWN, KEYUP])
             self.clean = 1
         self.Affiche_scene_jeu()
-        if (self.alive): # Empêche l'utilisateur de spammer espace lors de sa mort. (Sinon le son du saut s'active une unique fois avant de retourner au menu)
-            for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
-                if event.type == QUIT:     #Si un de ces événements est de type QUIT
-                    pygame.quit()
-                    sys.exit()
+        all_sprite.update()
+        for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
+            if event.type == QUIT:     #Si un de ces événements est de type QUIT
+                pygame.quit()
+                sys.exit()
 
-                if event.type == KEYDOWN and event.key == K_ESCAPE:
-                    # blob mort
-                    self.alive = False
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                # blob mort
+                self.alive = False
 
+            if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.crouch == False:
+                self.jump = True
 
-                if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.crouch == False:
-                    self.jump = True
-                    canal = jump.play()
+                canal = jump.play()
 
-                if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.crouch == False:
-                    self.stopjump = True
+            if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.crouch == False:
+                self.stopjump = True
 
-                if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.crouch == False:
-                    self.crouch = True
+            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.crouch == False:
+                self.crouch = True
 
-                if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
-                    self.fall = True
-                    self.crouch= True
+            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
+                self.fall = True
+                self.crouch= True
 
-                if event.type == KEYUP and event.key == K_DOWN:
-                    self.crouch = False
+            if event.type == KEYUP and event.key == K_DOWN:
+                self.crouch = False
 
 
     def state_manager(self):
@@ -296,11 +392,17 @@ class GameState():
         for i in range (len(self.tab_pos_obstacle)):
             #En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
             if(self.tab_type_obstacle[i] == 1):
-                fenetre.blit(small_object, self.tab_pos_obstacle[i])
+                small_object.x = self.tab_pos_obstacle[i][0]
+                small_object.y =self.tab_pos_obstacle[i][1]
+                fenetre.blit(small_object.image, self.tab_pos_obstacle[i])
             elif(self.tab_type_obstacle[i]==2):
-                fenetre.blit(large_object, self.tab_pos_obstacle[i])
+                large_object.x = self.tab_pos_obstacle[i][0]
+                large_object.y =self.tab_pos_obstacle[i][1]
+                fenetre.blit(large_object.image, self.tab_pos_obstacle[i])
             elif(self.tab_type_obstacle[i] == 3):
-                fenetre.blit(fantome, self.tab_pos_obstacle[i])
+                fantome.x = self.tab_pos_obstacle[i][0]
+                fantome.y =self.tab_pos_obstacle[i][1]
+                fenetre.blit(fantome.image, self.tab_pos_obstacle[i])
 
             self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[i][0]-self.speed #Fais bouger l'élément vers la gauche
 
@@ -339,10 +441,9 @@ class GameState():
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
 
         ## Affichage du blob (jump)
-        self.check_hitboxes()
         if (self.alive):
             if(self.jump):
-                self.blob_y= self.blob_y + self.jspeed
+                blob.blob_y= blob.blob_y + self.jspeed
                 #print ("jump=",self.jump," speed=",self.jspeed," stopjump=",self.stopjump)
                 if(self.stopjump and self.jspeed < 0):
                     self.jspeed= int(jspeed/4)
@@ -353,43 +454,58 @@ class GameState():
                 else:
                     self.jspeed=self.jspeed + self.gravity
 
-                if(self.blob_y>=180):
-                    self.blob_y=180
+                if(blob.blob_y>=180):
+                    blob.blob_y=180
                     self.jspeed= jspeed
                     self.jump = False
                     self.stopjump = False
                     self.fall = False
+                blob.update()
 
 
                 if self.fall:
-                    fenetre.blit(blob_crouch, (self.blob_x, self.blob_y+9))
+                    blob_crouch.x += blob.blob_x
+                    blob_crouch.y += blob.blob_y+9
+                    blob_crouch.update()
+                    fenetre.blit(blob_crouch.image, (blob.blob_x, blob.blob_y+9))
                 else:
-                    fenetre.blit(blob, (self.blob_x, self.blob_y))
+                    blob.update()
 
             else:
 
                 if(self.crouch):
-                    fenetre.blit(blob_crouch, (self.blob_x, self.blob_y+9))
+                    fenetre.blit(blob_crouch.image, (blob.blob_x, blob.blob_y+9))
 
                 else:
-                    self.blob_x = 10
-                    self.blob_y = 180
-                    fenetre.blit(blob, (self.blob_x, self.blob_y))
+                    blob.blob_x = 10
+                    blob.blob_y = 180
+                    blob.update()
+
 
         else: #si le blob est mort
             if(self.score > int(high_score)):
-                f_high_score = open(r"./Resources/high_score.txt", "w") # Ouverture en lecture.
+                f_high_score = open(r"./Resources/high_score.txt", "w") # Ouverture en écriture.
                 f_high_score.write(str(self.score))
                 f_high_score.close()
-            fenetre.blit(blob_dead, (self.blob_x, self.blob_y))
+            pygame.event.set_blocked([KEYDOWN, KEYUP])
+            fenetre.blit(blob_dead, (blob.blob_x, blob.blob_y))
             fenetre.blit(game_over_texte, (50,90))
             pygame.display.flip() # Pour afficher le text du game over
             canal = game_over.play()
-            time.sleep(3)
+            time.sleep(2)
             clean_affichage(fenetre)
             pygame.display.set_caption("Menu de la ScareBot")
             self.__init__()
-            self.alive = False # On garde le booléen à False pour empêcher qu'il spam espace et qu'il y ait quand le même le son de saut ... (cf les event)
+            #self.alive = False # On garde le booléen à False pour empêcher qu'il spam espace et qu'il y ait quand le même le son de saut ... (cf les event)
+            self.clean = 1
+
+        if(self.crouch):
+            if(pygame.sprite.collide_mask(blob_crouch, small_object) or pygame.sprite.collide_mask(blob_crouch, large_object) or pygame.sprite.collide_mask(blob_crouch, fantome)):
+                self.alive = False
+        else:
+            if(pygame.sprite.collide_mask(blob, small_object) or pygame.sprite.collide_mask(blob, large_object) or pygame.sprite.collide_mask(blob, fantome)):
+                self.alive = False
+
         pygame.display.flip()
 
 
