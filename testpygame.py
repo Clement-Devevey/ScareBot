@@ -74,13 +74,14 @@ def clean_affichage(screen):
 
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
 jspeed = -16
+speed = 4.5
 class GameState():
     def __init__(self):
         self.state = 'menu'
         self.choix_menu = 0
         self.clean = 0
         self.x_fen = 313
-        self.speed = 8
+        self.speed = speed
         self.y_fen = 245
         self.score=0
         self.i=0 #Boucle affichage blob
@@ -176,7 +177,8 @@ class GameState():
                 self.crouch = True
 
             if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
-                self.fall = True
+                self.fall = True  
+                self.crouch= True
 
             if event.type == KEYUP and event.key == K_DOWN and self.jump == False:
                 self.crouch = False
@@ -186,7 +188,7 @@ class GameState():
         if self.state == 'menu':
             self.menu()
         elif self.state == 'game':
-            self.speed = self.speed + 0.001
+            self.speed = self.speed + 0.0025
             self.game()
 
     def ynuage(self, a): #Permet d'éviter de faire spawn un nuage aux même coordonnées d'un autre nuage !
@@ -215,7 +217,7 @@ class GameState():
         fenetre.blit(fond_vert, (0,0))
 
         ##Affiche du score :
-        self.score=self.score+ceil(self.speed/10) # partie entière de la vitesse/2 arrondi au supérieur
+        self.score= self.score + ceil(self.speed/15) #partie entière de la vitesse/2 arrondi au supérieur
         texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (200, 10))
 
@@ -316,8 +318,12 @@ class GameState():
                     self.jspeed= jspeed
                     self.jump = False
                     self.stopjump = False
-                    self.fall = False
-                fenetre.blit(blob, (self.blob_x, self.blob_y))
+                    self.fall = False  
+                
+                if self.fall:
+                    fenetre.blit(blob_crouch, (self.blob_x, self.blob_y+9))
+                else:
+                    fenetre.blit(blob, (self.blob_x, self.blob_y))
 
 
             else:
@@ -338,8 +344,7 @@ class GameState():
             self.tab_type_obstacle = [1, 2, 3]
             #Remise à 0 des éléments si on mort pendant le saut
             self.jump = False
-            self.speed = 8
-            self.additionneur = -8
+            self.speed = speed
             #Remise à des éléments si on meurt accroupi :
             self.crouch=False
             #Remise à l'état initial de la position du blob
