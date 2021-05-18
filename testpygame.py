@@ -64,6 +64,9 @@ def affiche_menu(choix):
         fenetre.blit(fond_vert, (0,0))
         fenetre.blit(menu_fond, (0,0))
         fenetre.blit(curseur_selection, (65,102))
+        f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture.
+        high_score = f_high_score.readline()
+        f_high_score.close()
         texte = font.render('High score: {0}'.format(high_score), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (75, 225))
         pygame.display.flip()
@@ -72,6 +75,9 @@ def affiche_menu(choix):
         fenetre.blit(fond_vert, (0,0))
         fenetre.blit(menu_fond, (0,0))
         fenetre.blit(curseur_selection, (65,163))
+        f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture.
+        high_score = f_high_score.readline()
+        f_high_score.close()
         texte = font.render('High score: {0}'.format(high_score), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (75, 225))
         pygame.display.flip()
@@ -144,7 +150,6 @@ class GameState():
                 time.sleep(0.5)
 
                 if (self.choix_menu == 0):
-                    #print("jouer")
                     clean_affichage(fenetre)
                     pygame.display.set_caption("Blob Runner") # Nom de la fenêtre
                     self.state = 'game'
@@ -162,33 +167,33 @@ class GameState():
             pygame.display.set_caption("Blob Runner")
             self.clean = 1
         self.Affiche_scene_jeu()
+        if (self.alive): # Empêche l'utilisateur de spammer espace lors de sa mort. (Sinon le son du saut s'active une unique fois avant de retourner au menu)
+            for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
+                if event.type == QUIT:     #Si un de ces événements est de type QUIT
+                    pygame.quit()
+                    sys.exit()
 
-        for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
-            if event.type == QUIT:     #Si un de ces événements est de type QUIT
-                pygame.quit()
-                sys.exit()
-
-            if event.type == KEYDOWN and event.key == K_ESCAPE:
-                # blob mort
-                self.alive = False
+                if event.type == KEYDOWN and event.key == K_ESCAPE:
+                    # blob mort
+                    self.alive = False
 
 
-            if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.crouch == False:
-                self.jump = True
-                canal = jump.play()
+                if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.crouch == False:
+                    self.jump = True
+                    canal = jump.play()
 
-            if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.crouch == False:
-                self.stopjump = True
+                if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.crouch == False:
+                    self.stopjump = True
 
-            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.crouch == False:
-                self.crouch = True
+                if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.crouch == False:
+                    self.crouch = True
 
-            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
-                self.fall = True
-                self.crouch= True
+                if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
+                    self.fall = True
+                    self.crouch= True
 
-            if event.type == KEYUP and event.key == K_DOWN:
-                self.crouch = False
+                if event.type == KEYUP and event.key == K_DOWN:
+                    self.crouch = False
 
 
     def state_manager(self):
@@ -227,14 +232,12 @@ class GameState():
     def check_hitboxes(self):
         if self.crouch :
             blob_hbox=[[self.blob_x, self.blob_x + self.bcrouch_hbox[0] ], [self.blob_y + 9, self.blob_y + 9 + self.bcrouch_hbox[1]]]
-        else : 
+        else :
             blob_hbox=[[self.blob_x, self.blob_x + self.bbase_hbox[0] ], [self.blob_y, self.blob_y + self.bbase_hbox[1]]]
-            print(blob_hbox)
         for i in range(3):
             if self.tab_type_obstacle[i] == 1 :
 
                 obs_hbox = [[self.tab_pos_obstacle[i][0],self.tab_pos_obstacle[i][0] + self.so_hbox[0]], [self.tab_pos_obstacle[i][1],self.tab_pos_obstacle[i][1] + self.so_hbox[1]] ]
-                print()
                 if self.overlaps(blob_hbox[0], obs_hbox[0]) and self.overlaps(blob_hbox[1], obs_hbox[1]):
                     self.alive = False
 
@@ -335,7 +338,7 @@ class GameState():
                 self.tab_pos_sol[i][0] = 330 + (self.tab_pos_sol[i][0]+33)
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
 
-        # Affichage du blob :
+        ## Affichage du blob (jump)
         self.check_hitboxes()
         if (self.alive):
             if(self.jump):
@@ -363,7 +366,6 @@ class GameState():
                 else:
                     fenetre.blit(blob, (self.blob_x, self.blob_y))
 
-
             else:
 
                 if(self.crouch):
@@ -378,7 +380,6 @@ class GameState():
             if(self.score > int(high_score)):
                 f_high_score = open(r"./Resources/high_score.txt", "w") # Ouverture en lecture.
                 f_high_score.write(str(self.score))
-                print(self.score)
                 f_high_score.close()
             fenetre.blit(blob_dead, (self.blob_x, self.blob_y))
             fenetre.blit(game_over_texte, (50,90))
@@ -388,7 +389,7 @@ class GameState():
             clean_affichage(fenetre)
             pygame.display.set_caption("Menu de la ScareBot")
             self.__init__()
-
+            self.alive = False # On garde le booléen à False pour empêcher qu'il spam espace et qu'il y ait quand le même le son de saut ... (cf les event)
         pygame.display.flip()
 
 
