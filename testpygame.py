@@ -73,7 +73,7 @@ def clean_affichage(screen):
 
 
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
-jspeed = -16
+
 class GameState():
     def __init__(self):
         self.state = 'menu'
@@ -86,16 +86,14 @@ class GameState():
         self.i=0 #Boucle affichage blob
         self.blob_x = 10
         self.blob_y = 180
-        self.alive = True
+        self.vivant = True
         self.stopjump = False
         self.jump = False
-        self.fall = False  
-        self.crouch = False
-        self.jspeed= jspeed #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
-        self.gravity = 1
-        self.tab_pos_nuage = [[400,random.randrange(40, 120, 10)], [700,random.randrange(40, 120, 10)],[1000,random.randrange(40, 120, 10)]]
+        self.bas = False
+        self.additionneur=-8 #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
+        self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]]
         self.tab_type_nuage = [1, 2, 3]
-        self.tab_pos_obstacle = [[400,197], [700,197],[1000,random.randrange(125, 136, 1)]]
+        self.tab_pos_obstacle = [[400,197], [700,197],[1000,random.randrange(130, 136, 1)]]
         self.tab_type_obstacle = [1, 2, 3]
         self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]]
         self.tab_type_sol = [1, 2, 3, 3, 2, 1, 2, 2, 3, 3, 1]
@@ -130,7 +128,7 @@ class GameState():
                     clean_affichage(fenetre)
                     pygame.display.set_caption("Blob Runner") # Nom de la fenêtre
                     self.state = 'game'
-                    self.alive = True #Si jamais on retourne au menu, il faut remettre vivant à true
+                    self.vivant = True #Si jamais on retourne au menu, il faut remettre vivant à true
 
                 elif (self.choix_menu == 1):
                     pygame.quit()
@@ -155,7 +153,7 @@ class GameState():
 
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 # blob mort
-                self.alive = False
+                self.vivant = False
                 self.Affiche_scene_jeu()
                 canal = game_over.play()
                 time.sleep(3)
@@ -165,22 +163,18 @@ class GameState():
                 affiche_menu(0)
                 pygame.display.set_caption("Menu de la ScareBot")
 
-            if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.crouch == False:
+            if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.bas == False:
                 self.jump = True
                 canal = jump.play()
 
-
-            if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.crouch == False:
+            if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.bas == False:
                 self.stopjump = True
 
-            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.crouch == False:
-                self.crouch = True
-
-            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
-                self.fall = True    
+            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.bas == False:
+                self.bas = True
 
             if event.type == KEYUP and event.key == K_DOWN and self.jump == False:
-                self.crouch = False
+                self.bas = False
 
 
     def state_manager(self):
@@ -190,6 +184,28 @@ class GameState():
             self.speed = self.speed + 0.001
             self.game()
 
+    def ynuage(self, a): #Permet d'éviter de faire spawn un nuage aux même coordonnées d'un autre nuage !
+        print(a)
+        #Y_a_placer = self.tab_pos_nuage[a][1]
+        if (a<=0):
+            Y1 = self.tab_pos_nuage[1][1]
+            Y2 = self.tab_pos_nuage[2][1]
+            while((self.tab_pos_nuage[a][1] <  Y1+24 and self.tab_pos_nuage[a][1] >  Y1-24) or (self.tab_pos_nuage[a][1] <  Y2+24 and self.tab_pos_nuage[a][1] >  Y2-24)):
+                self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11)
+                #Y_a_placer = self.tab_pos_nuage[a][1]
+        elif(a==1):
+            Y0 = self.tab_pos_nuage[0][1]
+            Y2 = self.tab_pos_nuage[2][1]
+            while((self.tab_pos_nuage[a][1] <  Y0+24 and self.tab_pos_nuage[a][1] >  Y0-24) or (self.tab_pos_nuage[a][1] <  Y2+24 and self.tab_pos_nuage[a][1] >  Y2-24)):
+                self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11)
+                #Y_a_placer = self.tab_pos_nuage[a][1]
+
+        elif(a>=2):
+            Y0 = self.tab_pos_nuage[0][1]
+            Y1 = self.tab_pos_nuage[1][1]
+            while((self.tab_pos_nuage[a][1] <  Y0+24 and self.tab_pos_nuage[a][1] >  Y0-24) or (self.tab_pos_nuage[a][1] <  Y1+24 and self.tab_pos_nuage[a][1] >  Y1-24)):
+                self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11)
+                #Y_a_placer = self.tab_pos_nuage[a][1]
 
     def Affiche_scene_jeu(self):
         fenetre.blit(fond_vert, (0,0))
@@ -211,14 +227,12 @@ class GameState():
             self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0]-int(0.004*(random.randrange(75, 100, 1))*self.speed) #Fais bouger le nuage vers la gauche
 
             if(self.tab_pos_nuage[i][0]<=-141):  #Si un nuage est en dehors de la zone de l'écran, on le réaffiche tout à droite
-                if(i==0):
-                    self.tab_pos_nuage[i][0] = self.tab_pos_nuage[2][0] + x_fen
-                elif(i==1):
-                    self.tab_pos_nuage[i][0] = self.tab_pos_nuage[0][0] + x_fen
-                elif(i==2):
-                    self.tab_pos_nuage[i][0] = self.tab_pos_nuage[1][0] + x_fen
-
-                self.tab_pos_nuage[i][1] = random.randrange(40, 120, 10)
+                #Coordonné X : On doit les faire spawn en dehors de l'écran.
+                self.tab_pos_nuage[i][0] = random.randrange(x_fen, 2*x_fen, 20)
+                #Coordonnée Y :
+                self.tab_pos_nuage[i][1] = random.randrange(24, 178, 11)
+                #On doit checker qu'il ne spawn pas sur un autre nuage >_<
+                self.ynuage(i)  #Vérifie la coordonnée Y pour ne pas avoir 2 nuages l'un sur l'autre !
                 self.tab_type_nuage[i] = random.randrange(1, 4, 1)  #Nuage aléatoire
 
 
@@ -247,7 +261,7 @@ class GameState():
                 # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
                 self.tab_type_obstacle[i] = random.randrange(1, 4, 1)  #obstacle aléatoire
                 if(self.tab_type_obstacle[i] == 3):
-                    self.tab_pos_obstacle[i][1] = random.randrange(120, 136, 2)
+                    self.tab_pos_obstacle[i][1] = random.randrange(130, 136, 2)
                 else:
                     self.tab_pos_obstacle[i][1] = 197
 
@@ -270,30 +284,26 @@ class GameState():
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
 
         # Affichage du blob :
-        if (self.alive):
+        if (self.vivant):
             if(self.jump):
-                self.blob_y= self.blob_y + self.jspeed
-                #print ("jump=",self.jump," speed=",self.jspeed," stopjump=",self.stopjump)
-                if(self.stopjump and self.jspeed < 0):
-                    self.jspeed= int(jspeed/4)
+                self.i=self.i+self.additionneur
+
+                if(self.i<-72 or self.stopjump):
+                    self.additionneur=8
                     self.stopjump = False
 
-                if self.fall:
-                    self.jspeed=self.jspeed + 3*self.gravity
-                else:
-                    self.jspeed=self.jspeed + self.gravity
+                if(self.i > 0):
+                    self.jump = False
+                    self.additionneur=-8
 
+                self.blob_y=180+self.i
                 if(self.blob_y>180):
                     self.blob_y=180
-                    self.jspeed= jspeed
-                    self.jump = False
-                    self.stopjump = False
-                    self.fall = False  
                 fenetre.blit(blob, (self.blob_x, self.blob_y))
 
             else:
 
-                if(self.crouch):
+                if(self.bas):
                     fenetre.blit(blob_crouch, (self.blob_x, self.blob_y+9))
 
                 else:
@@ -310,9 +320,9 @@ class GameState():
             #Remise à 0 des éléments si on mort pendant le saut
             self.jump = False
             self.speed = 8
-            self.jspeed = -8
+            self.additionneur = -8
             #Remise à des éléments si on meurt accroupi :
-            self.crouch=False
+            self.bas=False
             #Remise à l'état initial de la position du blob
             self.blob_x = 10
             self.blob_y = 180
