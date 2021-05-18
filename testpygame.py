@@ -73,7 +73,7 @@ def clean_affichage(screen):
 
 
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
-
+jspeed = -16
 class GameState():
     def __init__(self):
         self.state = 'menu'
@@ -86,11 +86,13 @@ class GameState():
         self.i=0 #Boucle affichage blob
         self.blob_x = 10
         self.blob_y = 180
-        self.vivant = True
+        self.alive = True
         self.stopjump = False
         self.jump = False
-        self.bas = False
-        self.additionneur=-8 #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
+        self.fall = False  
+        self.crouch = False
+        self.jspeed= jspeed #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
+        self.gravity = 1
         self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]]
         self.tab_type_nuage = [1, 2, 3]
         self.tab_pos_obstacle = [[400,197], [700,197],[1000,random.randrange(130, 136, 1)]]
@@ -128,7 +130,7 @@ class GameState():
                     clean_affichage(fenetre)
                     pygame.display.set_caption("Blob Runner") # Nom de la fenêtre
                     self.state = 'game'
-                    self.vivant = True #Si jamais on retourne au menu, il faut remettre vivant à true
+                    self.alive = True #Si jamais on retourne au menu, il faut remettre vivant à true
 
                 elif (self.choix_menu == 1):
                     pygame.quit()
@@ -153,7 +155,7 @@ class GameState():
 
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 # blob mort
-                self.vivant = False
+                self.alive = False
                 self.Affiche_scene_jeu()
                 canal = game_over.play()
                 time.sleep(3)
@@ -163,18 +165,21 @@ class GameState():
                 affiche_menu(0)
                 pygame.display.set_caption("Menu de la ScareBot")
 
-            if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.bas == False:
+            if event.type == KEYDOWN and event.key == K_SPACE and self.jump == False and self.crouch == False:
                 self.jump = True
                 canal = jump.play()
 
-            if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.bas == False:
+            if event.type == KEYUP and event.key == K_SPACE and self.jump == True and self.crouch == False:
                 self.stopjump = True
 
-            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.bas == False:
-                self.bas = True
+            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == False and self.crouch == False:
+                self.crouch = True
+
+            if event.type == KEYDOWN and event.key == K_DOWN and self.jump == True :
+                self.fall = True  
 
             if event.type == KEYUP and event.key == K_DOWN and self.jump == False:
-                self.bas = False
+                self.crouch = False
 
 
     def state_manager(self):
@@ -284,26 +289,31 @@ class GameState():
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
 
         # Affichage du blob :
-        if (self.vivant):
+        if (self.alive):
             if(self.jump):
-                self.i=self.i+self.additionneur
-
-                if(self.i<-72 or self.stopjump):
-                    self.additionneur=8
+                self.blob_y= self.blob_y + self.jspeed
+                #print ("jump=",self.jump," speed=",self.jspeed," stopjump=",self.stopjump)
+                if(self.stopjump and self.jspeed < 0):
+                    self.jspeed= int(jspeed/4)
                     self.stopjump = False
 
-                if(self.i > 0):
-                    self.jump = False
-                    self.additionneur=-8
+                if self.fall:
+                    self.jspeed=self.jspeed + 3*self.gravity
+                else:
+                    self.jspeed=self.jspeed + self.gravity
 
-                self.blob_y=180+self.i
                 if(self.blob_y>180):
                     self.blob_y=180
+                    self.jspeed= jspeed
+                    self.jump = False
+                    self.stopjump = False
+                    self.fall = False  
                 fenetre.blit(blob, (self.blob_x, self.blob_y))
+
 
             else:
 
-                if(self.bas):
+                if(self.crouch):
                     fenetre.blit(blob_crouch, (self.blob_x, self.blob_y+9))
 
                 else:
@@ -322,7 +332,7 @@ class GameState():
             self.speed = 8
             self.additionneur = -8
             #Remise à des éléments si on meurt accroupi :
-            self.bas=False
+            self.crouch=False
             #Remise à l'état initial de la position du blob
             self.blob_x = 10
             self.blob_y = 180
