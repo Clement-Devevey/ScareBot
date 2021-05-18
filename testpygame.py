@@ -49,8 +49,14 @@ theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
 ## Chargement de la police
 
 font = pygame.font.Font(r"./Resources/images/pixelmix_bold.ttf", 12)
-# S'utilise avec texte = font.render("text", False, color)  # "text", antialias, color.
-#                fenetre.blit(texte, (x, y))
+
+## Chargement du high_score
+
+# Pour lire le high score :
+f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture.
+high_score = f_high_score.readline()
+f_high_score.close()
+
 
 ## fonction qui affiche le menu avec l'option en cours de sélection surligné en jaune
 def affiche_menu(choix):
@@ -58,12 +64,16 @@ def affiche_menu(choix):
         fenetre.blit(fond_vert, (0,0))
         fenetre.blit(menu_fond, (0,0))
         fenetre.blit(curseur_selection, (65,102))
+        texte = font.render('High score: {0}'.format(high_score), False, (48,98,48))  # "text", antialias, color
+        fenetre.blit(texte, (75, 225))
         pygame.display.flip()
 
     elif(choix == 1):
         fenetre.blit(fond_vert, (0,0))
         fenetre.blit(menu_fond, (0,0))
         fenetre.blit(curseur_selection, (65,163))
+        texte = font.render('High score: {0}'.format(high_score), False, (48,98,48))  # "text", antialias, color
+        fenetre.blit(texte, (75, 225))
         pygame.display.flip()
 
 ## Fonction qui clean l'ancien affichage :
@@ -330,6 +340,11 @@ class GameState():
                     fenetre.blit(blob, (self.blob_x, self.blob_y))
 
         else: #si le blob est mort
+            if(self.score > int(high_score)):
+                f_high_score = open(r"./Resources/high_score.txt", "w") # Ouverture en lecture.
+                f_high_score.write(str(self.score))
+                print(self.score)
+                f_high_score.close()
             fenetre.blit(blob_dead, (self.blob_x, self.blob_y))
             fenetre.blit(game_over_texte, (50,90))
             pygame.display.flip() # Pour afficher le text du game over
