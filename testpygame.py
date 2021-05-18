@@ -8,8 +8,9 @@ pygame.init()
 clock = pygame.time.Clock()
 NOMBRE_DE_CHOIX_MENU = 2 # les deux choix du menu sont Play ou Quit
 
+##Test rebase
 ## Création de la fenêtre (en pixels)
-x_fen = 313
+x_fen = 350
 y_fen = 245
 fenetre = pygame.display.set_mode((x_fen,y_fen))
 
