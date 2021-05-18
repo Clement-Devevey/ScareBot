@@ -49,7 +49,7 @@ class Blob(pygame.sprite.Sprite):
         self.rect.x += self.blob_x
         self.rect.y += self.blob_y
         self.mask = pygame.mask.from_surface(self.image)
-        fenetre.blit(self.image, (self.blob_x, self.blob_y))
+        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
 
 
 blob = Blob()
@@ -68,7 +68,7 @@ class Blob_crouch(pygame.sprite.Sprite):
         self.rect.x += self.x
         self.rect.y += self.y
         self.mask = pygame.mask.from_surface(self.image)
-        fenetre.blit(self.image, (self.x, self.y))
+
 
 
 blob_crouch = Blob_crouch()
@@ -88,8 +88,8 @@ class Large_object(pygame.sprite.Sprite):
         self.rect.x += self.x
         self.rect.y += self.y
         self.mask = pygame.mask.from_surface(self.image)
+        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
 
-large_object = Large_object()
 
 class Small_object(pygame.sprite.Sprite):
     def __init__(self):
@@ -99,14 +99,15 @@ class Small_object(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.x = 0
         self.y = 197
+        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
 
     def update(self):
         self.rect = self.image.get_rect()
         self.rect.x += self.x
         self.rect.y += self.y
         self.mask = pygame.mask.from_surface(self.image)
+        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
 
-small_object = Small_object()
 
 class Fantome(pygame.sprite.Sprite):
     def __init__(self):
@@ -123,8 +124,8 @@ class Fantome(pygame.sprite.Sprite):
         self.rect.x += self.x
         self.rect.y += self.y
         self.mask = pygame.mask.from_surface(self.image)
+        pygame.draw.rect(fenetre,(0,0,255),(self.rect))
 
-fantome = Fantome()
 
 ## Icon de la fenêtre et nom de la fenêtre
 pygame.display.set_icon(blob.image)
@@ -202,16 +203,11 @@ class GameState():
         self.gravity = 1
         self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]]
         self.tab_type_nuage = [1, 2, 3]
-        self.tab_pos_obstacle = [[700,197], [1000,197],[1300,random.randrange(130, 136, 1)]]
-        self.tab_type_obstacle = [1, 2, 3]
+        self.obstacle = Small_object()
+        self.tab_pos_obstacle = [700,197]
+        self.tab_type_obstacle = 1
         self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]]
         self.tab_type_sol = [1, 2, 3, 3, 2, 1, 2, 2, 3, 3, 1]
-        self.bbase_hbox = [52,31]
-        self.bcrouch_hbox = [52,22]
-        self.f_hbox = [41,52]
-        self.so_hbox = [31,15]
-        self.lo_hbox = [47,16]
-
 
 
     def menu(self):
@@ -263,7 +259,6 @@ class GameState():
             pygame.event.set_allowed([KEYDOWN, KEYUP])
             self.clean = 1
         self.Affiche_scene_jeu()
-        all_sprite.update()
         for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
             if event.type == QUIT:     #Si un de ces événements est de type QUIT
                 pygame.quit()
@@ -322,31 +317,6 @@ class GameState():
                 #Y_a_placer = self.tab_pos_nuage[a][1]
 
 
-    def overlaps(self,a, b):
-        return  (min(a[1], b[1]) - max(a[0], b[0])) > 0
-
-    def check_hitboxes(self):
-        if self.crouch :
-            blob_hbox=[[self.blob_x, self.blob_x + self.bcrouch_hbox[0] ], [self.blob_y + 9, self.blob_y + 9 + self.bcrouch_hbox[1]]]
-        else :
-            blob_hbox=[[self.blob_x, self.blob_x + self.bbase_hbox[0] ], [self.blob_y, self.blob_y + self.bbase_hbox[1]]]
-        for i in range(3):
-            if self.tab_type_obstacle[i] == 1 :
-
-                obs_hbox = [[self.tab_pos_obstacle[i][0],self.tab_pos_obstacle[i][0] + self.so_hbox[0]], [self.tab_pos_obstacle[i][1],self.tab_pos_obstacle[i][1] + self.so_hbox[1]] ]
-                if self.overlaps(blob_hbox[0], obs_hbox[0]) and self.overlaps(blob_hbox[1], obs_hbox[1]):
-                    self.alive = False
-
-            elif self.tab_type_obstacle[i] == 2 :
-                obs_hbox = [[self.tab_pos_obstacle[i][0],self.tab_pos_obstacle[i][0] + self.lo_hbox[0]], [self.tab_pos_obstacle[i][1],self.tab_pos_obstacle[i][1] + self.lo_hbox[1]] ]
-                if self.overlaps(blob_hbox[0], obs_hbox[0]) and self.overlaps(blob_hbox[1], obs_hbox[1]):
-                    self.alive = False
-
-            else :
-                obs_hbox = [[self.tab_pos_obstacle[i][0],self.tab_pos_obstacle[i][0] + self.f_hbox[0]], [self.tab_pos_obstacle[i][1],self.tab_pos_obstacle[i][1] + self.f_hbox[1]] ]
-                if self.overlaps(blob_hbox[0], obs_hbox[0]) and self.overlaps(blob_hbox[1], obs_hbox[1]):
-                    self.alive = False
-
 
     def Affiche_scene_jeu(self):
         fenetre.blit(fond_vert, (0,0))
@@ -385,42 +355,41 @@ class GameState():
                 self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0]-int(0.4*self.speed)
 
 
-
-
         ## affichage obstacles et fantome
 
-        for i in range (len(self.tab_pos_obstacle)):
-            #En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
-            if(self.tab_type_obstacle[i] == 1):
-                small_object.x = self.tab_pos_obstacle[i][0]
-                small_object.y =self.tab_pos_obstacle[i][1]
-                fenetre.blit(small_object.image, self.tab_pos_obstacle[i])
-            elif(self.tab_type_obstacle[i]==2):
-                large_object.x = self.tab_pos_obstacle[i][0]
-                large_object.y =self.tab_pos_obstacle[i][1]
-                fenetre.blit(large_object.image, self.tab_pos_obstacle[i])
-            elif(self.tab_type_obstacle[i] == 3):
-                fantome.x = self.tab_pos_obstacle[i][0]
-                fantome.y =self.tab_pos_obstacle[i][1]
-                fenetre.blit(fantome.image, self.tab_pos_obstacle[i])
+#En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
+            if(self.tab_type_obstacle == 1):
+                self.obstacle.x = self.tab_pos_obstacle[0]
+                self.obstacle.y =self.tab_pos_obstacle[1]
+                fenetre.blit(self.obstacle.image, self.tab_pos_obstacle)
+            elif(self.tab_type_obstacle==2):
+                self.obstacle.x = self.tab_pos_obstacle[0]
+                self.obstacle.y =self.tab_pos_obstacle[1]
+                fenetre.blit(self.obstacle.image, self.tab_pos_obstacle)
+            elif(self.tab_type_obstacle == 3):
+                self.obstacle.x = self.tab_pos_obstacle[0]
+                self.obstacle.y =self.tab_pos_obstacle[1]
+                fenetre.blit(self.obstacle.image, self.tab_pos_obstacle)
 
-            self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[i][0]-self.speed #Fais bouger l'élément vers la gauche
+            self.tab_pos_obstacle[0] = self.tab_pos_obstacle[0]-self.speed #Fais bouger l'élément vers la gauche
 
-            if(self.tab_pos_obstacle[i][0]<-47):  #Si un obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
+            if(self.tab_pos_obstacle[0]<-47):  #Si un obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
                 #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
-                if(i==0):
-                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[2][0]+random.randrange(x_fen, 2*x_fen, 5)
-                elif(i==1):
-                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[0][0]+random.randrange(x_fen, 2*x_fen+100, 5)
-                elif(i==2):
-                    self.tab_pos_obstacle[i][0] = self.tab_pos_obstacle[1][0]+random.randrange(x_fen, 2*x_fen+100, 5)
+                self.tab_pos_obstacle[0] = self.tab_pos_obstacle[0]+random.randrange(x_fen+10, 2*x_fen, 5)
+
 
                 # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
-                self.tab_type_obstacle[i] = random.randrange(1, 4, 1)  #obstacle aléatoire
-                if(self.tab_type_obstacle[i] == 3):
-                    self.tab_pos_obstacle[i][1] = random.randrange(130, 136, 2)
-                else:
-                    self.tab_pos_obstacle[i][1] = 197
+                self.tab_type_obstacle = random.randrange(1, 4, 1)  #obstacle aléatoire
+                if(self.tab_type_obstacle == 3):
+                    self.tab_pos_obstacle[1] = random.randrange(130, 136, 2)
+                    self.obstacle = Fantome()
+                elif(self.tab_type_obstacle == 2):
+                    self.tab_pos_obstacle[1] = 197
+                    self.obstacle = Large_object()
+                elif(self.tab_type_obstacle == 1):
+                    self.tab_pos_obstacle[1] = 197
+                    self.obstacle = Small_object()
+
 
         ## affichage du sol
 
@@ -441,7 +410,9 @@ class GameState():
                 self.tab_type_sol[i] = random.randrange(1, 4, 1)  #Sol aléatoire
 
         ## Affichage du blob (jump)
+
         if (self.alive):
+
             if(self.jump):
                 blob.blob_y= blob.blob_y + self.jspeed
                 #print ("jump=",self.jump," speed=",self.jspeed," stopjump=",self.stopjump)
@@ -460,26 +431,30 @@ class GameState():
                     self.jump = False
                     self.stopjump = False
                     self.fall = False
-                blob.update()
-
 
                 if self.fall:
-                    blob_crouch.x += blob.blob_x
-                    blob_crouch.y += blob.blob_y+9
+                    blob_crouch.x = blob.blob_x
+                    blob_crouch.y = blob.blob_y+9
                     blob_crouch.update()
-                    fenetre.blit(blob_crouch.image, (blob.blob_x, blob.blob_y+9))
+                    fenetre.blit(blob_crouch.image, (blob.blob_x, blob.blob_y))
                 else:
                     blob.update()
+                    fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
 
             else:
 
                 if(self.crouch):
-                    fenetre.blit(blob_crouch.image, (blob.blob_x, blob.blob_y+9))
+                    blob_crouch.x = blob.blob_x
+                    blob_crouch.y = blob.blob_y+9
+                    blob_crouch.update()
+                    fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
 
                 else:
                     blob.blob_x = 10
                     blob.blob_y = 180
                     blob.update()
+                    fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
+
 
 
         else: #si le blob est mort
@@ -496,15 +471,16 @@ class GameState():
             clean_affichage(fenetre)
             pygame.display.set_caption("Menu de la ScareBot")
             self.__init__()
-            #self.alive = False # On garde le booléen à False pour empêcher qu'il spam espace et qu'il y ait quand le même le son de saut ... (cf les event)
             self.clean = 1
 
+        all_sprite.update()
         if(self.crouch):
-            if(pygame.sprite.collide_mask(blob_crouch, small_object) or pygame.sprite.collide_mask(blob_crouch, large_object) or pygame.sprite.collide_mask(blob_crouch, fantome)):
+            if(pygame.sprite.collide_mask(blob_crouch, self.obstacle)):
                 self.alive = False
         else:
-            if(pygame.sprite.collide_mask(blob, small_object) or pygame.sprite.collide_mask(blob, large_object) or pygame.sprite.collide_mask(blob, fantome)):
+            if(pygame.sprite.collide_mask(blob, self.obstacle)):
                 self.alive = False
+
 
         pygame.display.flip()
 
