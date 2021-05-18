@@ -7,4 +7,4 @@ s’appelle Parallaxe. Le score est affiché en haut à droite et s’incrément
 pas rencontré d’obstacle. S’il entre en collision avec un obstacle, il s’arrête et le texte « Game
 Over » apparaît.
 
-Copyright : Scaredom
+Copyright : Scaredom @Mathieu SEMIN
