@@ -1,7 +1,7 @@
 ## Importation des bibliothèques nécessaires
 import pygame, sys, time, random
 from pygame.locals import *
-
+from math import ceil
 
 ## Initialisation de la bibliothèque Pygame + timer + constante
 pygame.init()
@@ -189,7 +189,7 @@ class GameState():
         fenetre.blit(fond_vert, (0,0))
 
         ##Affiche du score :
-        self.score=self.score+(self.speed/4) #Score incrémentatif
+        self.score=self.score+ceil(self.speed/2) #partie entière de la vitesse/2 arrondi au supérieur
         texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (200, 10))
 
