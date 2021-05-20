@@ -5,6 +5,11 @@ from math import ceil
 
 ## Initialisation de la bibliothèque Pygame + timer + constante
 pygame.init()
+
+# Possibilité d'intialiser le son :  voir https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.init
+# pygame.mixer.init(44100, -16, 2, 2048)
+# init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None)
+
 clock = pygame.time.Clock()
 NOMBRE_DE_CHOIX_MENU = 2 # les deux choix du menu sont Play ou Quit
 
@@ -137,13 +142,13 @@ pygame.display.set_icon(blob.image)
 pygame.display.set_caption("Menu de la ScareBot")
 
 ## Chargement des musiques
-#theme = pygame.mixer.music.load(r"H:\gameboy\Musiques\8bit.wav")
+#theme = pygame.mixer.music.load(b"H:\gameboy\Musiques\8bit.wav")
 
-select = pygame.mixer.Sound("./Resources/musiques/sfxMenuScarebotSelect.wav")
-jump = pygame.mixer.Sound("./Resources/musiques/sfxBlobRunn3rJump.wav")
-valide = pygame.mixer.Sound("./Resources/musiques/sfxMenuScarebotValidate.wav")
-game_over = pygame.mixer.Sound("./Resources/musiques/sfxScarebotGameOver.wav")
-theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
+select = pygame.mixer.Sound(b"./Resources/musiques/sfxMenuScarebotSelect.wav")
+jump = pygame.mixer.Sound(b"./Resources/musiques/sfxBlobRunn3rJump.wav")
+valide = pygame.mixer.Sound(b"./Resources/musiques/sfxMenuScarebotValidate.wav")
+game_over = pygame.mixer.Sound(b"./Resources/musiques/sfxScarebotGameOver.wav")
+theme = pygame.mixer.Sound(b"./Resources/musiques/8bit.wav")
 
 ## Chargement de la police
 
