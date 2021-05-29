@@ -21,4 +21,5 @@ Exécution :
     Sur raspberry
     Utiliser le paquet : g++-arm-linux-gnueabi (4:10.2.1-1) à la place g++.
 
+reste à implémenter : obstacles, nuages, collision, mort (affichage texte + retour menu).
 <p>&copy; 2021 Scaredom @Mathieu SEMIN</p>
