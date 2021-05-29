@@ -9,4 +9,13 @@ pas rencontré d’obstacle. S’il entre en collision avec un obstacle, il s’
 Over » apparaît.
 </p>
 
+Version réalisée en C++ avec la librarie graphique SFML.
+sudo apt-get install libsfml-dev
+
+Exécution :
+  Sur un linux :
+    Il faut vérifier la présence de g++ : g++ --version.
+  Sur raspberry : 
+    Utiliser le paquet : g++-arm-linux-gnueabi (4:10.2.1-1) à la place g++.
+
 <p>&copy; 2021 Scaredom @Mathieu SEMIN</p>
