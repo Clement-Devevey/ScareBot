@@ -7,8 +7,9 @@
 #include <string>
 using namespace std;
 
-
-sf::RenderWindow window(sf::VideoMode(313, 245), "Scarebot");
+int xwin = 313;
+int ywin = 245;
+sf::RenderWindow window(sf::VideoMode(xwin, ywin), "Scarebot");
 int jspeeed = -16;
 float speeed = 4.5;
 
@@ -40,7 +41,10 @@ class Sol
 			t_sol3.loadFromFile("images/sol 3.png");
 			s_sol3.setTexture(t_sol3);
 		}
-
+		void Reset()
+		{
+			type = std::rand()/((RAND_MAX + 1u)/3);
+		}
 		void setX(int xx) {x = xx;}
 		int getX() {return x;}
 		void update()
@@ -67,6 +71,7 @@ class Obstacle
 		sf::Sprite s_small;
 		sf::Texture t_ghost;
 		sf::Sprite s_ghost;
+		int x,y,type;
 	public:
 		Obstacle()
 		{
@@ -78,13 +83,38 @@ class Obstacle
 			s_small.setTexture(t_small);
 			//s_sol2.setPosition(0, 203);
 			
-			t_ghost.loadFromFile("images/fantome.png");
+			t_ghost.loadFromFile("images/fantome gameboy.png");
 			s_ghost.setTexture(t_ghost);
 			//s_sol3.setPosition(0,203);
+			x=330 + std::rand()/((RAND_MAX + 1u)/300);
+			y=197;
+		}
+		void Reset()
+		{
+			x=330 + std::rand()/((RAND_MAX + 1u)/300);
+			type = std::rand()/((RAND_MAX + 1u)/3);
+		}
+		int getX() {return x;}
+		int getY() {return y;}
+		int getType() {return type;}
+		void setX(int a) {x=a;}
+		void setY(int b) {y=b;}
+		void setType(int c) {type=c;}	
+		void update()
+		{
+			x =x-(int)speeed;
+			if(x<-50)
+			{
+				x=330 + std::rand()/((RAND_MAX + 1u)/300);
+				type = std::rand()/((RAND_MAX + 1u)/3);
+			}
+			if(type == 0){s_small.setPosition(x, y); window.draw(s_small);}
+			else if(type == 1){s_large.setPosition(x, y); window.draw(s_large);}
+			else if (type==2){s_ghost.setPosition(x, y-63); window.draw(s_ghost);}
 		}
 };
 
-class Nuage
+class Cloud
 {
 	private:
 		sf::Texture t_cloud1;
@@ -93,21 +123,55 @@ class Nuage
 		sf::Sprite s_cloud2;
 		sf::Texture t_cloud3;
 		sf::Sprite s_cloud3;
+		int x,y,type;
 	public:
-		Nuage()
+		Cloud()
 		{
-			t_cloud1.loadFromFile("images/cloud1.png");
+			t_cloud1.loadFromFile("images/cloud 1.png");
 			s_cloud1.setTexture(t_cloud1);
-			//s_sol1.setPosition(0, 203);
 
-			t_cloud2.loadFromFile("images/cloud2.png");
+			t_cloud2.loadFromFile("images/cloud 2.png");
 			s_cloud2.setTexture(t_cloud2);
-			//s_sol2.setPosition(0, 203);
 			
-			t_cloud3.loadFromFile("images/cloud3.png");
+			t_cloud3.loadFromFile("images/cloud 3.png");
 			s_cloud3.setTexture(t_cloud3);
-			//s_sol3.setPosition(0,203);
+
+			x=330 + std::rand()/((RAND_MAX + 1u)/300);
+			y= 24 + std::rand()/((RAND_MAX + 1u)/178);
+			type=std::rand()/((RAND_MAX + 1u)/3);
 		}
+		void Reset()
+		{
+			type=std::rand()/((RAND_MAX + 1u)/3);
+			x=330 + std::rand()/((RAND_MAX + 1u)/300);
+			y= 24 + std::rand()/((RAND_MAX + 1u)/178);	
+		}
+		void update()
+		{
+			//Vitesse de déplacement du nuage en fonction de sa coordonnée y :
+			if(y<76){x=x-int(0.2*speeed);}
+			else if(y>=76 && y<127){x=x-int(0.4*speeed);}
+			else if(y>=127){x=x-int(0.6*speeed);}
+
+			//On check si le nuage est en dehors de l'écran :
+			if(x<=-141)
+			{
+				type=std::rand()/((RAND_MAX + 1u)/3);
+				x=330 + std::rand()/((RAND_MAX + 1u)/300);
+				y= 30 + std::rand()/((RAND_MAX + 1u)/178);
+			}
+			
+			//MAJ position + affichage sur l'écran
+			if(type == 0){s_cloud1.setPosition(x, y); window.draw(s_cloud1);}
+			else if(type == 1){s_cloud2.setPosition(x, y); window.draw(s_cloud2);}
+			else if (type==2){s_cloud3.setPosition(x, y); window.draw(s_cloud3);}
+		}
+		int getX() {return x;}
+		int getY() {return y;}
+		int getType() {return type;}
+		void setX(int a) {x=a;}
+		void setY(int b) {y=b;}
+		void setType(int c) {type=c;}	
 };
 
 class Blob
@@ -148,6 +212,18 @@ class Blob
 
 			t_blob_dead.loadFromFile("images/blob dead.png");
 			s_blob_dead.setTexture(t_blob_dead);
+		}
+		void Reset()
+		{
+			speed = speeed;
+			jspeed = jspeeed;
+			stopjump = false;
+			jump = false;
+			fall = false;
+			gravity = 1;
+			x = 10;
+			y = 180;
+			state = 0; //0 : vivant, 1 : crouch, 2 : dead
 		}
 		void update()
 		{
@@ -227,6 +303,10 @@ class Menu
 			s_curseur2.setPosition(65,163);
 
 		}
+		void Reset()
+		{
+			set_choix_menu(0);
+		}
 		void up()
 		{
 			choix_menu=(choix_menu+1)%NOMBRE_DE_CHOIX_MENU;
@@ -278,6 +358,13 @@ int main()
 	sf::Sprite s_background;
 	s_background.setTexture(t_background);
 	s_background.setPosition(0, 0);
+
+	sf::Texture t_gameover;
+	t_gameover.loadFromFile("images/game over gameboy.png");
+	sf::Sprite s_gameover;
+	s_gameover.setTexture(t_gameover);
+	s_gameover.setPosition(50, 90);
+
 	window.setVerticalSyncEnabled(false);
 	window.setFramerateLimit(30);
 	window.setKeyRepeatEnabled(false);
@@ -315,8 +402,11 @@ int main()
 
 	Menu m;
 	Blob b;
-	int NB_SOL = 11;
-	Sol sol[NB_SOL];
+	int NB_SOL = ceil(xwin/33)+2; //11 si xwin = 313
+	Sol sol[NB_SOL]; //Tableau de 11 sols (11*33 = nombre minimum pour remplir xwin
+	Obstacle o;
+	Cloud cloud[3]; //tableau de 3 Nuages
+	//on écarte chaque sol de 33px
 	for (int i = 1; i < NB_SOL; i++ )
 	{
 		sol[i].setX((sol[i-1].getX())+33);
@@ -358,6 +448,11 @@ int main()
 							if(m.get_choix_menu() == 0)
 							{
 								state = 1;
+								score = 0;
+								b.Reset();
+								o.Reset();
+								for (int i = 0; i < NB_SOL; i++ ){sol[i].Reset();}
+								for (int i = 0; i < 3; i++ ){cloud[i].Reset();}
 							}
 							else
 							{
@@ -413,8 +508,25 @@ int main()
 						}
 					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 						{
+							state = 0;
+							s_score = "Score: " + std::to_string(score);
+							window.clear();
+							window.draw(s_background);
+							for (int i = 0; i < NB_SOL; i++ ){sol[i].update();}
+							o.update();
+							b.setState(2);
+							b.update();
+							for (int i = 0; i < 3; i++ ){cloud[i].update();}
+							// choix de la chaîne de caractères à afficher
+							text.setString(s_score);
+							text.setCharacterSize(12);
+							text.setFillColor(color);
+							window.draw(text);
+							window.draw(s_gameover);
+							window.display();
+							m.Reset();
 							sound_gameover.play();
-							window.close();
+							sf::sleep(sf::milliseconds(3000)); 
 						}
 					break;
 
@@ -438,7 +550,9 @@ int main()
 			window.clear();
 			window.draw(s_background);
 			for (int i = 0; i < NB_SOL; i++ ){sol[i].update();}
+			o.update();
 			b.update();
+			for (int i = 0; i < 3; i++ ){cloud[i].update();}
 			// choix de la chaîne de caractères à afficher
 			text.setString(s_score);
 			text.setCharacterSize(12);

@@ -1,7 +1,5 @@
 CC = g++
-all: /share/scarebot.cpp scarebot.exe
-/share/scarebot.cpp: scarebot.cpp
-	cp scarebot.cpp /share/	
+all: scarebot.exe
 scarebot.exe: scarebot.o
 	$(CC) scarebot.o -o scarebot.exe -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 scarebot.o: scarebot.cpp
