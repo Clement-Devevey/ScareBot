@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp> //graphic
 #include <SFML/Audio.hpp> //music
+#include "Collision.h"
 #include <stdbool.h> //bool
 #include <iostream> //cout
 #include <cstdlib> //random
@@ -12,7 +13,6 @@ int ywin = 245;
 sf::RenderWindow window(sf::VideoMode(xwin, ywin), "Scarebot");
 int jspeeed = -16;
 float speeed = 4.5;
-
 
 class Sol
 {
@@ -47,6 +47,12 @@ class Sol
 		}
 		void setX(int xx) {x = xx;}
 		int getX() {return x;}
+		void draw()
+		{
+			if(type == 0){s_sol1.setPosition(x, y); window.draw(s_sol1);}
+			else if(type == 1){s_sol2.setPosition(x, y); window.draw(s_sol2);}
+			else if (type==2){s_sol3.setPosition(x, y); window.draw(s_sol3);}
+		}
 		void update()
 		{
 			x = x-(int)speeed;
@@ -65,14 +71,14 @@ class Sol
 class Obstacle
 {
 	private:
-		sf::Texture t_large;
-		sf::Sprite s_large;
-		sf::Texture t_small;
-		sf::Sprite s_small;
-		sf::Texture t_ghost;
-		sf::Sprite s_ghost;
 		int x,y,type;
 	public:
+		sf::Texture t_large;
+		sf::Texture t_small;
+		sf::Texture t_ghost;
+		sf::Sprite s_large;
+		sf::Sprite s_small;
+		sf::Sprite s_ghost;
 		Obstacle()
 		{
 			t_large.loadFromFile("images/large object.png");
@@ -91,8 +97,14 @@ class Obstacle
 		}
 		void Reset()
 		{
+			//Faut reset la position du sprite loin sinon quand on relance le sprite est tjrs la ><
+			//if(type == 0){s_small.setPosition(x-50, y);}
+			//else if(type == 1){s_large.setPosition(x-50, y); }
+			//else if (type==2){s_ghost.setPosition(x-50, y-63);}
+
 			x=330 + std::rand()/((RAND_MAX + 1u)/300);
-			type = std::rand()/((RAND_MAX + 1u)/3);
+			type = type+1;
+			if(type>3){type = 0;}
 		}
 		int getX() {return x;}
 		int getY() {return y;}
@@ -100,6 +112,12 @@ class Obstacle
 		void setX(int a) {x=a;}
 		void setY(int b) {y=b;}
 		void setType(int c) {type=c;}	
+		void draw()
+		{
+			if(type == 0){s_small.setPosition(x, y); window.draw(s_small);}
+			else if(type == 1){s_large.setPosition(x, y); window.draw(s_large);}
+			else if (type==2){s_ghost.setPosition(x, y-63); window.draw(s_ghost);}
+		}
 		void update()
 		{
 			x =x-(int)speeed;
@@ -111,6 +129,9 @@ class Obstacle
 			if(type == 0){s_small.setPosition(x, y); window.draw(s_small);}
 			else if(type == 1){s_large.setPosition(x, y); window.draw(s_large);}
 			else if (type==2){s_ghost.setPosition(x, y-63); window.draw(s_ghost);}
+			
+			
+			
 		}
 };
 
@@ -124,6 +145,7 @@ class Cloud
 		sf::Texture t_cloud3;
 		sf::Sprite s_cloud3;
 		int x,y,type;
+		int pos_y[3]; //tableau qui va stocker les positions y de chaque nuage
 	public:
 		Cloud()
 		{
@@ -135,30 +157,36 @@ class Cloud
 			
 			t_cloud3.loadFromFile("images/cloud 3.png");
 			s_cloud3.setTexture(t_cloud3);
-
-			x=330 + std::rand()/((RAND_MAX + 1u)/300);
-			y= 24 + std::rand()/((RAND_MAX + 1u)/178);
 			type=std::rand()/((RAND_MAX + 1u)/3);
+			x=330 + std::rand()/((RAND_MAX + 1u)/300);
+			y= 28 + std::rand()/((RAND_MAX + 1u)/142);
 		}
+
 		void Reset()
 		{
 			type=std::rand()/((RAND_MAX + 1u)/3);
 			x=330 + std::rand()/((RAND_MAX + 1u)/300);
-			y= 24 + std::rand()/((RAND_MAX + 1u)/178);	
+			y= 28 + std::rand()/((RAND_MAX + 1u)/142);
+		}
+		void draw()
+		{
+			if(type == 0){s_cloud1.setPosition(x, y); window.draw(s_cloud1);}
+			else if(type == 1){s_cloud2.setPosition(x, y); window.draw(s_cloud2);}
+			else if (type==2){s_cloud3.setPosition(x, y); window.draw(s_cloud3);}
 		}
 		void update()
 		{
 			//Vitesse de déplacement du nuage en fonction de sa coordonnée y :
-			if(y<76){x=x-int(0.2*speeed);}
-			else if(y>=76 && y<127){x=x-int(0.4*speeed);}
-			else if(y>=127){x=x-int(0.6*speeed);}
+			if(y<75){x=x-int(0.5*speeed);}
+			else if(y>=75 && y<122){x=x-int(0.65*speeed);}
+			else if(y>=122){x=x-int(0.8*speeed);}
 
 			//On check si le nuage est en dehors de l'écran :
 			if(x<=-141)
 			{
 				type=std::rand()/((RAND_MAX + 1u)/3);
-				x=330 + std::rand()/((RAND_MAX + 1u)/300);
-				y= 30 + std::rand()/((RAND_MAX + 1u)/178);
+				x=330 + std::rand()/((RAND_MAX + 1u)/200);
+				y= 28 + std::rand()/((RAND_MAX + 1u)/142);
 			}
 			
 			//MAJ position + affichage sur l'écran
@@ -184,14 +212,15 @@ class Blob
 		bool stopjump;
 		bool jump;
 		bool fall;
-		sf::Texture t_blob;
-		sf::Sprite s_blob;
-		sf::Texture t_blob_crouch;
-		sf::Sprite s_blob_crouch;
-		sf::Texture t_blob_dead;
-		sf::Sprite s_blob_dead;
 		int x, y;
 	public:
+		sf::Texture t_blob;
+		sf::Texture t_blob_crouch;
+		sf::Texture t_blob_dead;
+		sf::Sprite s_blob;
+		sf::Sprite s_blob_crouch;
+		sf::Sprite s_blob_dead;
+
 		Blob()
 		{
 			speed = speeed;
@@ -227,38 +256,45 @@ class Blob
 		}
 		void update()
 		{
-			
-			if(state == 0 || (fall && state ==1)) //vivant	
+			if(state == 2){s_blob_dead.setPosition(x, y); window.draw(s_blob_dead);}
+			else
 			{
-				if (jump)
+				if(state == 0 || (fall && state ==1)) //vivant	
 				{
-					y = y + jspeed;
-					if(stopjump and jspeed < 0)
+					if (jump)
 					{
-						jspeed= int(jspeeed/4);
-						stopjump = false;
-					}
+						y = y + jspeed;
+						if(stopjump and jspeed < 0)
+						{
+							jspeed= int(jspeeed/4);
+							stopjump = false;
+						}
 
-					if (fall) {jspeed=jspeed + 3*gravity;}
-					else {jspeed=jspeed+gravity;}
+						if (fall) {jspeed=jspeed + 3*gravity;}
+						else {jspeed=jspeed+gravity;}
 
-					if(y>=180)
-					{
-					    y=180;
-					    jspeed= jspeeed;
-					    jump = false;
-					    stopjump = false;
-					    fall = false;
+						if(y>=180)
+						{
+						    y=180;
+						    jspeed= jspeeed;
+						    jump = false;
+						    stopjump = false;
+						    fall = false;
+						}
 					}
 				}
+				if(state == 1){s_blob_crouch.setPosition(x, y+9); window.draw(s_blob_crouch);}
+				else if (state==0){s_blob.setPosition(x, y); window.draw(s_blob);}
 			}
-			if(state == 1){s_blob_crouch.setPosition(x, y+9); window.draw(s_blob_crouch);}
-			else if(state == 2){s_blob_dead.setPosition(x, y); window.draw(s_blob_dead);}
-			else if (state==0){s_blob.setPosition(x, y); window.draw(s_blob);}
+
+			
+			
 		}
 
 		void setX(int coordonee_x){x = coordonee_x;}
 		void setY(int coordonee_y){y = coordonee_y;}
+		int getX(){return x;}
+		int getY(){return y;}
 		void setState(int stateee){state = stateee;}
 		int getState() {return state;}
 		void setJump(bool a) {jump = a;}
@@ -344,30 +380,175 @@ class Menu
 		}
 };
 
-int main()
+void death(int* state, Sol sol[11], Cloud cloud[3], Obstacle* o, Blob* b, Menu* m, sf::Sound* sound_gameover, int* NB_SOL, sf::Sprite* s_background, sf::Sprite* s_gameover, sf::Text* text)
 {
-	string s_score;
-	sf::Font font;
-	font.loadFromFile("images/pixelmix_bold.ttf");
-	sf::Text text;
-	text.setFont(font); 
-	text.setPosition(200,10);
-	sf::Color color(48, 98, 48);
-	sf::Texture t_background;
-	t_background.loadFromFile("images/fond_vert.png");
-	sf::Sprite s_background;
-	s_background.setTexture(t_background);
-	s_background.setPosition(0, 0);
+	*state = 0;
+	jspeeed = -16;
+	speeed = 4.5;
+	window.clear();
+	window.draw(*s_background);
+	for (int i = 0; i < *NB_SOL; i++ ){sol[i].draw();}
+	for (int i = 0; i < 3; i++ ){cloud[i].draw();}
+	o->draw();
+	b->update();
+	window.draw(*text);
+	window.draw(*s_gameover);
+	window.display();
+	m->Reset();
+	sound_gameover->play();
+	sf::sleep(sf::milliseconds(3000)); 
+}
 
-	sf::Texture t_gameover;
-	t_gameover.loadFromFile("images/game over gameboy.png");
-	sf::Sprite s_gameover;
-	s_gameover.setTexture(t_gameover);
-	s_gameover.setPosition(50, 90);
+void suicide(int* state, Sol sol[11], Cloud cloud[3], Obstacle* o, Blob* b, Menu* m, sf::Sound* sound_gameover, int* NB_SOL, sf::Sprite* s_background, sf::Sprite* s_gameover, sf::Text* text)
+{
+	*state = 0;
+	jspeeed = -16;
+	speeed = 4.5;
+	window.clear();
+	window.draw(*s_background);
+	for (int i = 0; i < *NB_SOL; i++ ){sol[i].draw();}
+	for (int i = 0; i < 3; i++ ){cloud[i].draw();}
+	o->draw();
+	b->setState(2);
+	b->update();
+	window.draw(*text);
+	window.draw(*s_gameover);
+	window.display();
+	m->Reset();
+	sound_gameover->play();
+	sf::sleep(sf::milliseconds(3000)); 
+}
+
+void update(string* s_score, Sol sol[11], Cloud cloud[3], Obstacle* o, Blob* b, sf::Sprite* s_background, sf::Text* text, sf::Color* color, int* score, int* NB_SOL)
+{
+	*s_score = "Score: " + std::to_string(*score);
+	window.clear();
+	window.draw(*s_background);
+	for (int i = 0; i < *NB_SOL; i++ ){sol[i].update();}
+	for (int i = 0; i < 3; i++ ){cloud[i].update();}
+	o->update();
+	b->update();
+	// choix de la chaîne de caractères à afficher
+	text->setString(*s_score);
+	text->setCharacterSize(12);
+	text->setFillColor(*color);
+	window.draw(*text);
+	window.display();
+}
+
+void check_collide(Blob* b, Obstacle* o)
+{
+	if(b->getState() == 0) //debout
+	{
+		if(o->getType() == 0)
+		{
+			if(Collision::PixelPerfectTest(b->s_blob, o->s_small))
+
+			{
+				b->setState(2);
+				cout<<"collision"<<endl;
+			}
+		}
+		else if(o->getType() == 1)
+		{
+			if(Collision::PixelPerfectTest(b->s_blob,o->s_large))
+			{
+				b->setState(2);
+				cout<<"collision"<<endl;
+			}
+		}
+		else if(o->getType() == 2)
+		{
+			if(Collision::PixelPerfectTest(b->s_blob, o->s_ghost))
+			{
+				b->setState(2);
+				cout<<"collision"<<endl;
+			}
+		}
+	}
+
+	else if(b->getState() == 1) //accroupi
+	{
+		if(o->getType() == 0)
+		{
+			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_small))
+			{
+				b->setState(2);
+				cout<<"collision accroupi"<<endl;
+			}
+		}
+		else if(o->getType() == 1)
+		{
+			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_large))
+			{
+				b->setState(2);
+				cout<<"collision accroupi"<<endl;
+			}
+		}
+		else if(o->getType() == 2)
+		{
+			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_ghost))
+			{
+				b->setState(2);
+				cout<<"collision accroupi"<<endl;
+			}
+		}
+	}
+}
+
+void init(int* NB_SOL, Sol sol[11], sf::Font* font, sf::Text* text, sf::Texture* t_background, sf::Sprite* s_background, sf::Texture* t_gameover, sf::Sprite* s_gameover, sf::Music* theme, sf::SoundBuffer* buffer_select, sf::Sound* sound_select, sf::SoundBuffer* buffer_validate,sf::Sound* sound_validate, sf::SoundBuffer* buffer_gameover, sf::Sound* sound_gameover, sf::SoundBuffer* buffer_jump, sf::Sound* sound_jump)
+{
+	font->loadFromFile("images/pixelmix_bold.ttf");
+	text->setFont(*font); 
+	text->setPosition(200,10);
+	
+	t_background->loadFromFile("images/fond_vert.png");
+	s_background->setTexture(*t_background);
+	s_background->setPosition(0, 0);
+
+	t_gameover->loadFromFile("images/game over gameboy.png");
+	s_gameover->setTexture(*t_gameover);
+	s_gameover->setPosition(50, 90);
 
 	window.setVerticalSyncEnabled(false);
 	window.setFramerateLimit(30);
 	window.setKeyRepeatEnabled(false);
+
+	theme->openFromFile("Musiques/8bit.wav");
+	theme->play();
+	theme->setLoop(true);
+
+	buffer_select->loadFromFile("Musiques/sfxMenuScarebotSelect.wav");
+	sound_select->setBuffer(*buffer_select);
+
+	buffer_validate->loadFromFile("Musiques/sfxMenuScarebotValidate.wav");
+	sound_validate->setBuffer(*buffer_validate);
+	
+	buffer_gameover->loadFromFile("Musiques/sfxScarebotGameOver.wav");
+	sound_gameover->setBuffer(*buffer_gameover);
+
+	
+	buffer_jump->loadFromFile("Musiques/sfxBlobRunn3rJump.wav");
+	sound_jump->setBuffer(*buffer_jump);
+
+	//on écarte chaque sol de 33px
+	for (int i = 1; i < *NB_SOL; i++ )
+	{
+		sol[i].setX((sol[i-1].getX())+33);
+	} //on écarte chaque sol de 33px
+}
+
+
+int main()
+{
+	string s_score;
+	sf::Font font;
+	sf::Text text;
+	sf::Color color(48, 98, 48);
+	sf::Texture t_background;
+	sf::Sprite s_background;
+	sf::Texture t_gameover;
+	sf::Sprite s_gameover;
 
 	int score = 0;
 	bool stopjump = false;
@@ -375,30 +556,14 @@ int main()
 	int state = 0; //Etat : 0 = menu. 1 = jeu
 
 	sf::Music theme;
-	theme.openFromFile("Musiques/8bit.wav");
-	theme.play();
-	theme.setLoop(true);
-
 	sf::SoundBuffer buffer_select;
-	buffer_select.loadFromFile("Musiques/sfxMenuScarebotSelect.wav");
 	sf::Sound sound_select;
-	sound_select.setBuffer(buffer_select);
-
 	sf::SoundBuffer buffer_validate;
-	buffer_validate.loadFromFile("Musiques/sfxMenuScarebotValidate.wav");
-	sf::Sound sound_validate;
-	sound_validate.setBuffer(buffer_validate);
-	
+	sf::Sound sound_validate;	
 	sf::SoundBuffer buffer_gameover;
-	buffer_gameover.loadFromFile("Musiques/sfxScarebotGameOver.wav");
 	sf::Sound sound_gameover;
-	sound_gameover.setBuffer(buffer_gameover);
-
 	sf::SoundBuffer buffer_jump;
-	buffer_jump.loadFromFile("Musiques/sfxBlobRunn3rJump.wav");
 	sf::Sound sound_jump;
-	sound_jump.setBuffer(buffer_jump);
-	
 
 	Menu m;
 	Blob b;
@@ -406,15 +571,12 @@ int main()
 	Sol sol[NB_SOL]; //Tableau de 11 sols (11*33 = nombre minimum pour remplir xwin
 	Obstacle o;
 	Cloud cloud[3]; //tableau de 3 Nuages
-	//on écarte chaque sol de 33px
-	for (int i = 1; i < NB_SOL; i++ )
-	{
-		sol[i].setX((sol[i-1].getX())+33);
-	} //on écarte chaque sol de 33px
+
+	init(&NB_SOL, sol, &font, &text, &t_background, &s_background, &t_gameover, &s_gameover, &theme, &buffer_select, &sound_select, &buffer_validate, &sound_validate, &buffer_gameover, &sound_gameover, &buffer_jump, &sound_jump);
+	
 	while (window.isOpen())
 	{
 		sf::Event event;
-// //////////////////////////////////MENU // /////////////////////// /////////////////////
 		if(state == 0)
 		{
 			m.afficher_menu();
@@ -474,91 +636,68 @@ int main()
 			}
 		}
 
-// //////////////////////////////////JEU en lui même // /////////////////////// /////////////////////
 		else
 		{
-			speeed = speeed + 0.0025;
-			score= score + ceil(speeed/15);
-			while (window.pollEvent(event))
+			if(b.getState()==2)
 			{
-			    // check the type of the event...
-				switch (event.type)
-				{
-				// window closed
-				case sf::Event::Closed:
-					window.close();
-					break;
-
-				// key pressed
-				case sf::Event::KeyPressed:
-					if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) && b.getJump() == false && b.getState() == 0)
-						{
-							b.setState(1);
-						}
-					else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) && b.getJump() == false && b.getState() == 0)
-						{
-							b.setJump(true);
-							sound_jump.play();
-						}
-
-					else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) && b.getJump() == true && b.getState() == 0)
-						{
-							b.setFall(true);
-							b.setState(1);
-						}
-					else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-						{
-							state = 0;
-							s_score = "Score: " + std::to_string(score);
-							window.clear();
-							window.draw(s_background);
-							for (int i = 0; i < NB_SOL; i++ ){sol[i].update();}
-							o.update();
-							b.setState(2);
-							b.update();
-							for (int i = 0; i < 3; i++ ){cloud[i].update();}
-							// choix de la chaîne de caractères à afficher
-							text.setString(s_score);
-							text.setCharacterSize(12);
-							text.setFillColor(color);
-							window.draw(text);
-							window.draw(s_gameover);
-							window.display();
-							m.Reset();
-							sound_gameover.play();
-							sf::sleep(sf::milliseconds(3000)); 
-						}
-					break;
-
-				case sf::Event::KeyReleased:
-
-					if ((event.key.code == sf::Keyboard::Down)&& b.getState() == 1)
-						{
-							b.setState(0);
-						}
-					else if ((event.key.code == sf::Keyboard::Space)&& b.getState() == 0 && b.getJump() == true)
-						{
-							b.setStopJump(true);
-						}
-					break;
-				// we don't process other types of events
-				default:
-					break;
-			    	}
+				death(&state, sol, cloud, &o, &b, &m, &sound_gameover, &NB_SOL, &s_background, &s_gameover, &text);
 			}
-			s_score = "Score: " + std::to_string(score);
-			window.clear();
-			window.draw(s_background);
-			for (int i = 0; i < NB_SOL; i++ ){sol[i].update();}
-			o.update();
-			b.update();
-			for (int i = 0; i < 3; i++ ){cloud[i].update();}
-			// choix de la chaîne de caractères à afficher
-			text.setString(s_score);
-			text.setCharacterSize(12);
-			text.setFillColor(color);
-			window.draw(text);
-			window.display();
+			else
+				{
+				speeed = speeed + 0.0025;
+				score= score + ceil(speeed/15);
+				while (window.pollEvent(event))
+				{
+				    // check the type of the event...
+					switch (event.type)
+					{
+					// window closed
+					case sf::Event::Closed:
+						window.close();
+						break;
+
+					// key pressed
+					case sf::Event::KeyPressed:
+						if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) && b.getJump() == false && b.getState() == 0)
+							{
+								b.setState(1);
+							}
+						else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) && b.getJump() == false && b.getState() == 0)
+							{
+								b.setJump(true);
+								sound_jump.play();
+							}
+
+						else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) && b.getJump() == true && b.getState() == 0)
+							{
+								b.setFall(true);
+								b.setState(1);
+							}
+						else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+							{
+								suicide(&state, sol, cloud, &o, &b, &m, &sound_gameover, &NB_SOL, &s_background, &s_gameover, &text);
+							}
+						break;
+
+					case sf::Event::KeyReleased:
+
+						if ((event.key.code == sf::Keyboard::Down)&& b.getState() == 1)
+							{
+								b.setState(0);
+							}
+						else if ((event.key.code == sf::Keyboard::Space)&& b.getState() == 0 && b.getJump() == true)
+							{
+								b.setStopJump(true);
+							}
+						break;
+					// we don't process other types of events
+					default:
+						break;
+				    	}
+				}
+				update(&s_score, sol, cloud, &o, &b, &s_background, &text, &color, &score, &NB_SOL);
+				check_collide(&b, &o);
+			}
 		}
 
 	}
