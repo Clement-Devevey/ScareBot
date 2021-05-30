@@ -23,7 +23,7 @@ Exécution :
 
 reste à implémenter : 
 
-    Améliorer le spawn des nuages (il se superpose).
+    Améliorer le spawn des nuages (ils se superposent).
     Thread pour la fonction check_collide
 
 <p>&copy; 2021 Scaredom @Mathieu SEMIN</p>
