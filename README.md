@@ -21,5 +21,9 @@ Exécution :
     Sur raspberry
     Utiliser le paquet : g++-arm-linux-gnueabi (4:10.2.1-1) à la place g++.
 
-reste à implémenter : collision.
+reste à implémenter : 
+
+    Améliorer le spawn des nuages (il se superpose).
+    Thread pour la fonction check_collide
+
 <p>&copy; 2021 Scaredom @Mathieu SEMIN</p>
