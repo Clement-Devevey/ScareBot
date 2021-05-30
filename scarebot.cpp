@@ -513,6 +513,7 @@ void init(int* NB_SOL, Sol sol[11], sf::Font* font, sf::Text* text, sf::Texture*
 	window.setVerticalSyncEnabled(false);
 	window.setFramerateLimit(30);
 	window.setKeyRepeatEnabled(false);
+	window.setMouseCursorVisible(false);
 
 	theme->openFromFile("Musiques/8bit.wav");
 	theme->play();
