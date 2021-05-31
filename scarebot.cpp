@@ -160,9 +160,9 @@ class Cloud
 			area = plus_un;
 			plus_un = plus_un+1;
 			x=330 + std::rand()/((RAND_MAX + 1u)/300);
-			if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/47);}
-			else if(area==1){y= 75 + std::rand()/((RAND_MAX + 1u)/47);}
-			else if(area==2){y= 122 + std::rand()/((RAND_MAX + 1u)/48);}
+			if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/40);}
+			else if(area==1){y= 80 + std::rand()/((RAND_MAX + 1u)/40);}
+			else if(area==2){y= 127 + std::rand()/((RAND_MAX + 1u)/40);}
 			
 		}
 
