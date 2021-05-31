@@ -2,17 +2,16 @@
 #include <SFML/Audio.hpp> //music
 #include "Collision.h"
 #include <stdbool.h> //bool
-#include <iostream> //cout
 #include <cstdlib> //random
 #include <math.h> //ceil()
 #include <string>
 using namespace std;
-
 int xwin = 313;
 int ywin = 245;
 sf::RenderWindow window(sf::VideoMode(xwin, ywin), "Scarebot");
 int jspeeed = -16;
 float speeed = 4.5;
+int plus_un = 0; //variable pour régler les nuages à leur bon emplacement
 
 class Sol
 {
@@ -145,7 +144,7 @@ class Cloud
 		sf::Texture t_cloud3;
 		sf::Sprite s_cloud3;
 		int x,y,type;
-		int pos_y[3]; //tableau qui va stocker les positions y de chaque nuage
+		int area;
 	public:
 		Cloud()
 		{
@@ -158,15 +157,22 @@ class Cloud
 			t_cloud3.loadFromFile("images/cloud 3.png");
 			s_cloud3.setTexture(t_cloud3);
 			type=std::rand()/((RAND_MAX + 1u)/3);
+			area = plus_un;
+			plus_un = plus_un+1;
 			x=330 + std::rand()/((RAND_MAX + 1u)/300);
-			y= 28 + std::rand()/((RAND_MAX + 1u)/142);
+			if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/47);}
+			else if(area==1){y= 75 + std::rand()/((RAND_MAX + 1u)/47);}
+			else if(area==2){y= 122 + std::rand()/((RAND_MAX + 1u)/48);}
+			
 		}
 
 		void Reset()
 		{
+			if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/47);}
+			else if(area==1){y= 75 + std::rand()/((RAND_MAX + 1u)/47);}
+			else if(area==2){y= 122 + std::rand()/((RAND_MAX + 1u)/48);}
 			type=std::rand()/((RAND_MAX + 1u)/3);
-			x=330 + std::rand()/((RAND_MAX + 1u)/300);
-			y= 28 + std::rand()/((RAND_MAX + 1u)/142);
+			x=330 + std::rand()/((RAND_MAX + 1u)/200);
 		}
 		void draw()
 		{
@@ -177,16 +183,19 @@ class Cloud
 		void update()
 		{
 			//Vitesse de déplacement du nuage en fonction de sa coordonnée y :
-			if(y<75){x=x-int(0.5*speeed);}
-			else if(y>=75 && y<122){x=x-int(0.65*speeed);}
-			else if(y>=122){x=x-int(0.8*speeed);}
+			if(area==0){x=x-int(0.5*speeed);}
+			else if(area==1){x=x-int(0.65*speeed);}
+			else if(area==2){x=x-int(0.8*speeed);}
 
 			//On check si le nuage est en dehors de l'écran :
 			if(x<=-141)
 			{
+				if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/47);}
+				else if(area==1){y= 75 + std::rand()/((RAND_MAX + 1u)/47);}
+				else if(area==2){y= 122 + std::rand()/((RAND_MAX + 1u)/48);}
 				type=std::rand()/((RAND_MAX + 1u)/3);
 				x=330 + std::rand()/((RAND_MAX + 1u)/200);
-				y= 28 + std::rand()/((RAND_MAX + 1u)/142);
+				
 			}
 			
 			//MAJ position + affichage sur l'écran
@@ -446,7 +455,6 @@ void check_collide(Blob* b, Obstacle* o)
 
 			{
 				b->setState(2);
-				cout<<"collision"<<endl;
 			}
 		}
 		else if(o->getType() == 1)
@@ -454,7 +462,6 @@ void check_collide(Blob* b, Obstacle* o)
 			if(Collision::PixelPerfectTest(b->s_blob,o->s_large))
 			{
 				b->setState(2);
-				cout<<"collision"<<endl;
 			}
 		}
 		else if(o->getType() == 2)
@@ -462,7 +469,6 @@ void check_collide(Blob* b, Obstacle* o)
 			if(Collision::PixelPerfectTest(b->s_blob, o->s_ghost))
 			{
 				b->setState(2);
-				cout<<"collision"<<endl;
 			}
 		}
 	}
@@ -474,7 +480,6 @@ void check_collide(Blob* b, Obstacle* o)
 			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_small))
 			{
 				b->setState(2);
-				cout<<"collision accroupi"<<endl;
 			}
 		}
 		else if(o->getType() == 1)
@@ -482,7 +487,6 @@ void check_collide(Blob* b, Obstacle* o)
 			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_large))
 			{
 				b->setState(2);
-				cout<<"collision accroupi"<<endl;
 			}
 		}
 		else if(o->getType() == 2)
@@ -490,7 +494,6 @@ void check_collide(Blob* b, Obstacle* o)
 			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_ghost))
 			{
 				b->setState(2);
-				cout<<"collision accroupi"<<endl;
 			}
 		}
 	}
@@ -572,7 +575,6 @@ int main()
 	Sol sol[NB_SOL]; //Tableau de 11 sols (11*33 = nombre minimum pour remplir xwin
 	Obstacle o;
 	Cloud cloud[3]; //tableau de 3 Nuages
-
 	init(&NB_SOL, sol, &font, &text, &t_background, &s_background, &t_gameover, &s_gameover, &theme, &buffer_select, &sound_select, &buffer_validate, &sound_validate, &buffer_gameover, &sound_gameover, &buffer_jump, &sound_jump);
 	
 	while (window.isOpen())
