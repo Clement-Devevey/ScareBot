@@ -13,6 +13,7 @@ Version réalisée en C++ avec la librarie graphique SFML.
 /!\ J'ai viré le dossier resources pour avoir images et musiques directement /!\
 
 sudo apt-get install libsfml-dev
+Raspberry package manager has libsfml in its packages
 
 reste à implémenter : 
 
