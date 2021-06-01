@@ -5,6 +5,7 @@
 #include <cstdlib> //random
 #include <math.h> //ceil()
 #include <string>
+#include <thread>
 using namespace std;
 int xwin = 313;
 int ywin = 245;
@@ -60,10 +61,20 @@ class Sol
 				x = 330 + (33+x);
 				type = std::rand()/((RAND_MAX + 1u)/3); //random 0 1 ou 2
 			}
-			if(type == 0){s_sol1.setPosition(x, y); window.draw(s_sol1);}
-			else if(type == 1){s_sol2.setPosition(x, y); window.draw(s_sol2);}
-			else if (type==2){s_sol3.setPosition(x, y); window.draw(s_sol3);}
-		
+			switch(type) 
+			{
+				case 0:
+					s_sol1.setPosition(x, y); 
+					window.draw(s_sol1);
+		  			break;
+				case 1:
+					s_sol2.setPosition(x, y); 
+					window.draw(s_sol2);
+					break;
+				default: //case 2
+					s_sol3.setPosition(x, y); 
+					window.draw(s_sol3);
+			}
 		}
 };
 
@@ -113,9 +124,20 @@ class Obstacle
 		void setType(int c) {type=c;}	
 		void draw()
 		{
-			if(type == 0){s_small.setPosition(x, y); window.draw(s_small);}
-			else if(type == 1){s_large.setPosition(x, y); window.draw(s_large);}
-			else if (type==2){s_ghost.setPosition(x, y-63); window.draw(s_ghost);}
+			switch(type) 
+			{
+				case 0:
+					s_small.setPosition(x, y); 
+					window.draw(s_small);
+		  			break;
+				case 1:
+					s_large.setPosition(x, y); 
+					window.draw(s_large);
+					break;
+				default: //case 2
+					s_ghost.setPosition(x, y-63); 
+					window.draw(s_ghost);
+			}
 		}
 		void update()
 		{
@@ -125,12 +147,20 @@ class Obstacle
 				x=330 + std::rand()/((RAND_MAX + 1u)/300);
 				type = std::rand()/((RAND_MAX + 1u)/3);
 			}
-			if(type == 0){s_small.setPosition(x, y); window.draw(s_small);}
-			else if(type == 1){s_large.setPosition(x, y); window.draw(s_large);}
-			else if (type==2){s_ghost.setPosition(x, y-63); window.draw(s_ghost);}
-			
-			
-			
+			switch(type) 
+			{
+				case 0:
+					s_small.setPosition(x, y); 
+					window.draw(s_small);
+		  			break;
+				case 1:
+					s_large.setPosition(x, y); 
+					window.draw(s_large);
+					break;
+				default: //case 2
+					s_ghost.setPosition(x, y-63); 
+					window.draw(s_ghost);
+			}	
 		}
 };
 
@@ -160,48 +190,102 @@ class Cloud
 			area = plus_un;
 			plus_un = plus_un+1;
 			x=330 + std::rand()/((RAND_MAX + 1u)/300);
-			if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/40);}
-			else if(area==1){y= 80 + std::rand()/((RAND_MAX + 1u)/40);}
-			else if(area==2){y= 127 + std::rand()/((RAND_MAX + 1u)/40);}
-			
+			switch(area) 
+			{
+				case 0:
+					y= 28 + std::rand()/((RAND_MAX + 1u)/40);
+		  			break;
+				case 1:
+					y= 80 + std::rand()/((RAND_MAX + 1u)/40);
+					break;
+				default: //case 2
+					y= 127 + std::rand()/((RAND_MAX + 1u)/40);
+			}
 		}
 
 		void Reset()
 		{
-			if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/47);}
-			else if(area==1){y= 75 + std::rand()/((RAND_MAX + 1u)/47);}
-			else if(area==2){y= 122 + std::rand()/((RAND_MAX + 1u)/48);}
+			switch(area) 
+			{
+				case 0:
+					y= 28 + std::rand()/((RAND_MAX + 1u)/40);
+		  			break;
+				case 1:
+					y= 80 + std::rand()/((RAND_MAX + 1u)/40);
+					break;
+				default: //case 2
+					y= 127 + std::rand()/((RAND_MAX + 1u)/40);
+			}
 			type=std::rand()/((RAND_MAX + 1u)/3);
 			x=330 + std::rand()/((RAND_MAX + 1u)/200);
 		}
 		void draw()
 		{
-			if(type == 0){s_cloud1.setPosition(x, y); window.draw(s_cloud1);}
-			else if(type == 1){s_cloud2.setPosition(x, y); window.draw(s_cloud2);}
-			else if (type==2){s_cloud3.setPosition(x, y); window.draw(s_cloud3);}
+			switch(type) 
+			{
+				case 0:
+					s_cloud1.setPosition(x, y); 
+					window.draw(s_cloud1);
+		  			break;
+				case 1:
+					s_cloud2.setPosition(x, y); 
+					window.draw(s_cloud2);
+					break;
+				default: //case 2
+					s_cloud3.setPosition(x, y); 
+					window.draw(s_cloud3);
+			}
+
 		}
 		void update()
 		{
-			//Vitesse de déplacement du nuage en fonction de sa coordonnée y :
-			if(area==0){x=x-int(0.5*speeed);}
-			else if(area==1){x=x-int(0.65*speeed);}
-			else if(area==2){x=x-int(0.8*speeed);}
+			//vitesse de déplacement différente en fonction de la coordonnée y
+			switch(area) 
+			{
+				case 0:
+					x=x-int(0.4*speeed);
+		  			break;
+				case 1:
+					x=x-int(0.6*speeed);
+					break;
+				default: //case 2
+					x=x-int(0.8*speeed);
+			}
 
 			//On check si le nuage est en dehors de l'écran :
 			if(x<=-141)
 			{
-				if(area==0){y= 28 + std::rand()/((RAND_MAX + 1u)/47);}
-				else if(area==1){y= 75 + std::rand()/((RAND_MAX + 1u)/47);}
-				else if(area==2){y= 122 + std::rand()/((RAND_MAX + 1u)/48);}
+				switch(area) 
+				{
+					case 0:
+						y= 28 + std::rand()/((RAND_MAX + 1u)/40);
+			  			break;
+					case 1:
+						y= 80 + std::rand()/((RAND_MAX + 1u)/40);
+						break;
+					default: //case 2
+						y= 127 + std::rand()/((RAND_MAX + 1u)/40);
+				}
 				type=std::rand()/((RAND_MAX + 1u)/3);
 				x=330 + std::rand()/((RAND_MAX + 1u)/200);
 				
 			}
-			
 			//MAJ position + affichage sur l'écran
-			if(type == 0){s_cloud1.setPosition(x, y); window.draw(s_cloud1);}
-			else if(type == 1){s_cloud2.setPosition(x, y); window.draw(s_cloud2);}
-			else if (type==2){s_cloud3.setPosition(x, y); window.draw(s_cloud3);}
+			switch(type) 
+			{
+				case 0:
+					s_cloud1.setPosition(x, y); 
+					window.draw(s_cloud1);
+		  			break;
+				case 1:
+					s_cloud2.setPosition(x, y); 
+					window.draw(s_cloud2);
+					break;
+				default: //case 2
+					s_cloud3.setPosition(x, y); 
+					window.draw(s_cloud3);
+			}
+			
 		}
 		int getX() {return x;}
 		int getY() {return y;}
@@ -447,55 +531,53 @@ void update(string* s_score, Sol sol[11], Cloud cloud[3], Obstacle* o, Blob* b, 
 
 void check_collide(Blob* b, Obstacle* o)
 {
-	if(b->getState() == 0) //debout
+	
+	switch(b->getState()) //debout
 	{
-		if(o->getType() == 0)
-		{
-			if(Collision::PixelPerfectTest(b->s_blob, o->s_small))
+		case 0:
+			switch(o->getType()) 
+			{
+				case 0:
+					if(Collision::PixelPerfectTest(b->s_blob, o->s_small))
+					{
+						b->setState(2);
+					}
+					break;
+				case 1:
+					if(Collision::PixelPerfectTest(b->s_blob,o->s_large))
+					{
+						b->setState(2);
+					}
+					break;
+				default:
+					if(Collision::PixelPerfectTest(b->s_blob, o->s_ghost))
+					{
+						b->setState(2);
+					}
+			}
+			break;
 
+		default:
+			switch(o->getType()) 
 			{
-				b->setState(2);
+				case 0:
+					if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_small))
+					{
+						b->setState(2);
+					}
+					break;
+				case 1:
+					if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_large))
+					{
+						b->setState(2);
+					}
+					break;
+				default:
+					if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_ghost))
+					{
+						b->setState(2);
+					}
 			}
-		}
-		else if(o->getType() == 1)
-		{
-			if(Collision::PixelPerfectTest(b->s_blob,o->s_large))
-			{
-				b->setState(2);
-			}
-		}
-		else if(o->getType() == 2)
-		{
-			if(Collision::PixelPerfectTest(b->s_blob, o->s_ghost))
-			{
-				b->setState(2);
-			}
-		}
-	}
-
-	else if(b->getState() == 1) //accroupi
-	{
-		if(o->getType() == 0)
-		{
-			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_small))
-			{
-				b->setState(2);
-			}
-		}
-		else if(o->getType() == 1)
-		{
-			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_large))
-			{
-				b->setState(2);
-			}
-		}
-		else if(o->getType() == 2)
-		{
-			if(Collision::PixelPerfectTest(b->s_blob_crouch, o->s_ghost))
-			{
-				b->setState(2);
-			}
-		}
 	}
 }
 
@@ -576,7 +658,6 @@ int main()
 	Obstacle o;
 	Cloud cloud[3]; //tableau de 3 Nuages
 	init(&NB_SOL, sol, &font, &text, &t_background, &s_background, &t_gameover, &s_gameover, &theme, &buffer_select, &sound_select, &buffer_validate, &sound_validate, &buffer_gameover, &sound_gameover, &buffer_jump, &sound_jump);
-	
 	while (window.isOpen())
 	{
 		sf::Event event;
