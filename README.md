@@ -12,11 +12,8 @@ Over » apparaît.
 Version réalisée en C++ avec la librarie graphique SFML.
 /!\ J'ai viré le dossier resources pour avoir images et musiques directement /!\
 
-sudo apt-get install libsfml-dev
-Raspberry package manager has libsfml in its packages
+A compiler directement sur la raspberry, pour utiliser sans X11 voir : https://github.com/mickelson/sfml-pi
 
-reste à implémenter : 
 
-    Thread pour la fonction check_collide
 
 <p>&copy; 2021 Scaredom @Mathieu SEMIN</p>
