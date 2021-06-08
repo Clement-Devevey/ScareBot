@@ -11,7 +11,7 @@ int xwin = 313;
 int ywin = 245;
 sf::RenderWindow window(sf::VideoMode(xwin, ywin), "Scarebot");
 int jspeeed = -16;
-float speeed = 4.5;
+float speeed = 4.5*2;
 int plus_un = 0; //variable pour régler les nuages à leur bon emplacement
 
 class Sol
@@ -356,15 +356,15 @@ class Blob
 				{
 					if (jump)
 					{
-						y = y + jspeed;
+						y = y + 2*jspeed;
 						if(stopjump and jspeed < 0)
 						{
 							jspeed= int(jspeeed/4);
 							stopjump = false;
 						}
 
-						if (fall) {jspeed=jspeed + 3*gravity;}
-						else {jspeed=jspeed+gravity;}
+						if (fall) {jspeed=jspeed + 6*gravity;}
+						else {jspeed=jspeed+2*gravity;}
 
 						if(y>=180)
 						{
@@ -477,7 +477,7 @@ void death(int* state, Sol sol[11], Cloud cloud[3], Obstacle* o, Blob* b, Menu* 
 {
 	*state = 0;
 	jspeeed = -16;
-	speeed = 4.5;
+	speeed = 4.5*2;
 	window.clear();
 	window.draw(*s_background);
 	for (int i = 0; i < *NB_SOL; i++ ){sol[i].draw();}
@@ -496,7 +496,7 @@ void suicide(int* state, Sol sol[11], Cloud cloud[3], Obstacle* o, Blob* b, Menu
 {
 	*state = 0;
 	jspeeed = -16;
-	speeed = 4.5;
+	speeed = 4.5*2;
 	window.clear();
 	window.draw(*s_background);
 	for (int i = 0; i < *NB_SOL; i++ ){sol[i].draw();}
