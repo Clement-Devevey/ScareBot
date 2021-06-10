@@ -20,6 +20,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 NOMBRE_DE_CHOIX_MENU = 2 # les deux choix du menu sont Play ou Quit
+vollvl = 50
 
 ## Création de la fenêtre (en pixels)
 x_fen = 320
@@ -52,13 +53,13 @@ def down_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
 def down_release():
     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_DOWN))
-def space_press():
+def a_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
-def space_release():
+def a_release():
     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE))
-def enter_press():
+def b_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
-def enter_release():
+def b_release():
     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RETURN))
 def left_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_LEFT))
@@ -72,8 +73,8 @@ up=Button(16, False, None, 0.075, 1, False, None)#haut
 right=Button(26, False, None, 0.075, 1, False, None)
 down=Button(6, False, None, 0.075, 1, False, None)#bas
 left=Button(5, False, None, 0.075, 1, False, None)
-enter=Button(17, False, None, 0.075, 1, False, None)#droite
-space=Button(27, False, None, 0.075, 1, False, None)#gauche
+b=Button(17, False, None, 0.075, 1, False, None)#droite
+a=Button(27, False, None, 0.075, 1, False, None)#gauche
 up.when_pressed = up_press
 up.when_released = up_release
 right.when_pressed = right_press
@@ -82,10 +83,10 @@ down.when_pressed = down_press
 down.when_released = down_release
 left.when_pressed = left_press
 left.when_released = left_release
-space.when_pressed = space_press
-space.when_released = space_release
-enter.when_pressed = enter_press
-enter.when_released = enter_release
+a.when_pressed = a_press
+a.when_released = a_release
+b.when_pressed = b_press
+b.when_released = b_release
 
 ## Chargement des sprites
 all_sprite = pygame.sprite.Group()
@@ -234,7 +235,7 @@ def affiche_menu(choix,self):
     if self.displayvolume>0 :
         #print(self.displayvolume)
         fenetre.blit (img_volume, (35,50))
-        pygame.draw.rect(fenetre, [15,56, 15], [49, 52, 1.92*self.vollvl, 10], 0)
+        pygame.draw.rect(fenetre, [15,56, 15], [49, 52, int(1.92*self.vollvl), 10], 0)
         self.displayvolume -=1
 
     pygame.display.flip()
@@ -248,12 +249,13 @@ def clean_affichage(screen):
 jspeed = -16
 speed = 4.5*2
 
+
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
 
 class GameState():
     def __init__(self):
+        self.vollvl = vollvl
         self.state = 'menu'
-        self.vollvl = 50
         self.displayvolume = 0
         self.choix_menu = 0
         self.clean = 0
@@ -304,7 +306,7 @@ class GameState():
                 subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"], shell=True)
 
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN and self.state != 'game': #K RETURN = entrée
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and self.state != 'game': #K RETURN = entrée
                 #canal = valide.play()
                 #os.system("aplay /game/Resources/musiques/valid.wav")
                 subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"], shell=True)
@@ -318,6 +320,9 @@ class GameState():
                     self.alive = True #Si jamais on retourne au menu, il faut remettre vivant à true
 
                 elif (self.choix_menu == 1):
+                    #subprocess.Popen(['kill -9 $(ps aux | grep "sh /game/Resources/bouclemusique.sh" | grep -v "grep" |tr -s " "| cut -d " " -f 2)'], shell=True)
+                    musique_boucle.terminate()
+                    subprocess.Popen(['kill -9 $(ps aux | grep "aplay /game/Resources/musiques/8bit.wav -N --test-nowait" | grep -v "grep" |tr -s " "| cut -d " " -f 2)'],  shell=True )
                     pygame.quit()
                     sys.exit()
 
@@ -457,11 +462,11 @@ class GameState():
             elif(self.tab_pos_nuage[i][1] >= 127):
                 self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0]-int(0.4*self.speed)
 
-            if self.displayvolume>0 :
-                #print("self.displayvolume")
-                fenetre.blit (img_volume, (35,50))
-                pygame.draw.rect(fenetre, [15, 56, 15], [49, 52, 1.92*self.vollvl, 10], 0)
-                self.displayvolume -=1
+        if self.displayvolume>0 :
+            #print("self.displayvolume")
+            fenetre.blit (img_volume, (35,50))
+            pygame.draw.rect(fenetre, [15, 56, 15], [49, 52, 1.92*self.vollvl, 10], 0)
+            self.displayvolume -=1
 
 
         ## affichage obstacles et fantome
@@ -597,7 +602,8 @@ fps = 30
 # theme_canal.set_volume(0.7)
 
 #os.system("aplay /game/Resources/musiques/8bit.wav")
-subprocess.Popen(["while true; do aplay /game/Resources/musiques/8bit.wav -N --test-nowait; done "], shell=True)
+
+musique_boucle = subprocess.Popen(["while true; do aplay /game/Resources/musiques/8bit.wav -N --test-nowait ; sleep 2; done"], shell = True)
 subprocess.Popen(["amixer cset numid=1 70%"],shell=True)
 ## Boucle infinie pour faire tourner le jeu
 
