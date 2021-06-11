@@ -1,34 +1,32 @@
 ## Importation des bibliothèques nécessaires
-import pygame, sys, time, random
+import pygame, sys, time, random, subprocess, os
 from pygame.locals import *
 from math import ceil,log10
-import os
 from gpiozero import LED, Button
-import subprocess
 
 # Config driver
 #os.environ['SDL_VIDEODRIVER'] = 'fbcon'
 #os.environ["SDL_FBDEV"] = "/dev/fb1"
 os.environ["SDL_NOMOUSE"] = "1"
 
-## Initialisation de la bibliothèque Pygame + timer + constante
+## Initialisation de la bibliothèque Pygame
 pygame.init()
 
-# Possibilité d'intialiser le son :  voir https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.init
-# pygame.mixer.init(44100, -16, 2, 2048)
-# init(frequency=44100, size=-16, channels=2, buffer=512, devicename=None)
-
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() #Permet de régler les FPS (voir ligne 606 : clock.tick(fps))
 NOMBRE_DE_CHOIX_MENU = 2 # les deux choix du menu sont Play ou Quit
-vollvl = 50
+vollvl = 50 #Volume par défaut
 
 ## Création de la fenêtre (en pixels)
 x_fen = 320
 y_fen = 240
 fenetre = pygame.display.set_mode((x_fen,y_fen))
+
+## On enlève l'affichage de la souris
 pygame.mouse.set_visible(False)
+
 ## Chargement des images
 
+# Si image avec fond transparent, utiliser .convert_alpha
 fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
 menu_fond = pygame.image.load("./Resources/images/menu.png").convert_alpha()
 curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png").convert_alpha()
@@ -45,6 +43,12 @@ img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 
 ## Initialisation des Boutons et pins
 
+## Variables globales pour la vitesse du jeu
+jspeed = -16
+speed = 4.5*2 # *2 car on est passé de 60 fps à 30 fps
+
+# Le principe est le suivant : 
+    # 1) on créé des fonctions
 def up_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
 def up_release():
@@ -69,12 +73,16 @@ def right_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
 def right_release():
     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RIGHT))
+    
+    # 2) On affecte chaque bouton au bon pin GPIO (voir la documentation de la PI ZERO (pinout PI ZERO) : https://pi4j.com/1.2/pins/model-zerow-rev1.html
 up=Button(16, False, None, 0.075, 1, False, None)#haut
 right=Button(26, False, None, 0.075, 1, False, None)
 down=Button(6, False, None, 0.075, 1, False, None)#bas
 left=Button(5, False, None, 0.075, 1, False, None)
 b=Button(17, False, None, 0.075, 1, False, None)#droite
 a=Button(27, False, None, 0.075, 1, False, None)#gauche
+
+    # 3) On affecte à chaque état du bouton (pressé ou relaché) une fonction. Celle-ci sera appelé n'importe quand via interruptions.
 up.when_pressed = up_press
 up.when_released = up_release
 right.when_pressed = right_press
@@ -89,137 +97,134 @@ b.when_pressed = b_press
 b.when_released = b_release
 
 ## Chargement des sprites
+
+# Création d'un groupe de sprite. Permet de lancer la méthode update() de chaque sprite en une seule commande.
 all_sprite = pygame.sprite.Group()
 
 class Blob(pygame.sprite.Sprite):
     def __init__(self):
-        super().__init__(all_sprite)
-        self.image = pygame.image.load("./Resources/images/blob_base.png").convert_alpha()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.blob_x = 10
-        self.blob_y = 180
-        self.rect.x += self.blob_x
-        self.rect.y += self.blob_y
+        super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
+        self.image = pygame.image.load("./Resources/images/blob_base.png").convert_alpha() # Image du blob
+        self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
+        self.rect = self.image.get_rect() # Création du rectangle pour les collisions
+        self.blob_x = 10 # Coordonnée x par défaut du blob
+        self.blob_y = 180 # Coordonnée y par défaut du blob
+        self.rect.x += self.blob_x # on place le rectangle au bon endroit
+        self.rect.y += self.blob_y # on place le rectangle au bon endroit
 
 
     def update(self):
+        # Permet de mettre à jour les coordonnées du rectangle pour les collisions.
         self.rect.x = self.blob_x
         self.rect.y = self.blob_y
 
-blob = Blob()
+blob = Blob() # Création d'un objet blob
 
 class Blob_crouch(pygame.sprite.Sprite):
     def __init__(self):
-        super().__init__(all_sprite)
-        self.image = pygame.image.load("./Resources/images/blob crouch.png").convert_alpha()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect()
-        self.x = 0
-        self.y = 0
+        super().__init__(all_sprite)  # Associe le sprite au groupe all_sprite
+        self.image = pygame.image.load("./Resources/images/blob crouch.png").convert_alpha() # Image du blob accroupi
+        self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
+        self.rect = self.image.get_rect() # Création du rectangle pour les collisions
+        self.x = 0  #Initialisation de sa coordonnée x
+        self.y = 0 #Initialisation de sa coordonnée y
 
     def update(self):
+        # Permet de mettre à jour les coordonnées du rectangle pour les collisions.
         self.rect.x = self.x
         self.rect.y = self.y
 
 
 
-blob_crouch = Blob_crouch()
+blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
-        super().__init__(all_sprite)
-        self.large = pygame.image.load("./Resources/images/large object.png").convert_alpha()
-        self.small = pygame.image.load("./Resources/images/small object.png").convert_alpha()
-        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha()
-        self.mask = pygame.mask.from_surface(self.small) #initialisation à un petit obstacle
-        self.rect =  self.small.get_rect()
-        self.x = random.randrange(x_fen+200, 2*x_fen, 2)
-        self.y = 197
-        self.type = 1 #0: large , 1: small, 2 : fantome
+        super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
+        self.large = pygame.image.load("./Resources/images/large object.png").convert_alpha() #Chargement image large object
+        self.small = pygame.image.load("./Resources/images/small object.png").convert_alpha()  #Chargement image small object
+        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha() #Chargement image fantome
+        self.mask = pygame.mask.from_surface(self.small) # initialisation à un petit obstacle
+        self.rect =  self.small.get_rect() # Création du rectangle pour les collisions
+        self.x = random.randrange(x_fen+200, 2*x_fen, 2) # La position du premier obstacle est choisi entre x_fen +200 et 2*x_fen, avec un pas de 2 pixels
+        self.y = 197 # La coordonnée y est de 197.
+        self.type = 1 # Initialisation de l'obstacle à un petit obstacle
+        # 0: large , 1: small, 2 : fantome
 
 
     def update_avec_blit(self):
-
+        # Méthode qui met à jour les coordonnées du rectangle puis ajoute l'affichage de l'obstacle sur la fenêtre (/!\ tant qu'on n'a pas appelé fenetre.display(), rien ne s'affiche)
         if (self.type == 0):
-
             self.rect.x = self.x
             self.rect.y = self.y
             fenetre.blit(self.large, (self.x, self.y))
 
         elif (self.type == 1):
-
             self.rect.x = self.x
             self.rect.y = self.y
             fenetre.blit(self.small, (self.x, self.y))
 
         elif (self.type == 2):
-
             self.rect.x = self.x
             self.rect.y = self.y
             fenetre.blit(self.fantome, (self.x, self.y))
 
     def change_mask(self):
-                               
-
+        # Méthode qui permet de mettre à jour le mask et le rectangle, quand l'obstacle sort du cadre de la fenêtre de jeu. (Car quand il sort, on prend un entier random pour changer le type de l'obstacle)
         if (self.type == 0):
             self.mask = pygame.mask.from_surface(self.large)
             self.rect =  self.large.get_rect()
                                 
-                                
-                                                      
-
         elif (self.type == 1):
             self.mask = pygame.mask.from_surface(self.small)
             self.rect =  self.small.get_rect()
                                 
-                                
-                                                      
-
         elif (self.type == 2):
             self.mask = pygame.mask.from_surface(self.fantome)
             self.rect =  self.fantome.get_rect()
                                 
                                 
-obstacle = Obstacle()
+obstacle = Obstacle() # Création d'un objet de type obstacle.
 
 ## Icon de la fenêtre et nom de la fenêtre
-pygame.display.set_icon(blob.image)
-pygame.display.set_caption("Menu de la ScareBot")
+# Permet d'afficher une icone et un titre sur la fenetre, inutile dans notre cas car full screen
+# pygame.display.set_icon(blob.image)
+# pygame.display.set_caption("Menu de la ScareBot")
 
-## Chargement des musiques
+## Ancienne méthode Chargement des musiques
 #theme = pygame.mixer.music.load(b"H:\gameboy\Musiques\8bit.wav")
-
 # select = pygame.mixer.Sound(b"./Resources/musiques/sfxMenuScarebotSelect.wav")
 # jump = pygame.mixer.Sound(b"./Resources/musiques/sfxBlobRunn3rJump.wav")
 # valide = pygame.mixer.Sound(b"./Resources/musiques/sfxMenuScarebotValidate.wav")
 # game_over = pygame.mixer.Sound(b"./Resources/musiques/sfxScarebotGameOver.wav")
 # theme = pygame.mixer.Sound(b"./Resources/musiques/8bit.wav")
 
-## Chargement de la police
+## Chargement de la police pour affichage du score
 
 font = pygame.font.Font(r"./Resources/images/pixelmix_bold.ttf", 12)
 
 ## Chargement du high_score
 
 # Pour lire le high score :
-f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture.
-high_score = f_high_score.readline()
-f_high_score.close()
+f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture du fichier texte qui contient le nombre du score maximal atteint.
+high_score = f_high_score.readline() # On stocke ce numéro dans high_score
+f_high_score.close() # On ferme le fichier
 
 
-## fonction qui affiche le menu avec l'option en cours de sélection surligné en jaune
+## fonction qui affiche le menu avec l'option en cours de sélection qui a un curseuse sur la gauche
 def affiche_menu(choix,self):
+    # Différence entre choix 1 et 2 = position du curseur. (soit à côté du choix 0 (jouer) soit à côté du choix 1 (quit)
     if(choix == 0):
-        fenetre.blit(fond_vert, (0,0))
-        fenetre.blit(menu_fond, (0,0))
-        fenetre.blit(curseur_selection, (65,102))
+        fenetre.blit(fond_vert, (0,0)) # Affichage du fond vert
+        fenetre.blit(menu_fond, (0,0)) # Affiche de l'interface du menu
+        fenetre.blit(curseur_selection, (65,102)) # Affichage du curseuse
+        # Affichage du high score
         f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture.
         high_score = f_high_score.readline()
         f_high_score.close()
         texte = font.render('High score: {0}'.format(high_score), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (75, 225))
-        pygame.display.flip()
+
     elif(choix == 1):
         fenetre.blit(fond_vert, (0,0))
         fenetre.blit(menu_fond, (0,0))
@@ -229,42 +234,38 @@ def affiche_menu(choix,self):
         f_high_score.close()
         texte = font.render('High score: {0}'.format(high_score), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (75, 225))
-        pygame.display.flip()
-
 
     if self.displayvolume>0 :
-        #print(self.displayvolume)
+        #Si l'utilisateur change le volume, on affiche un rectangle plus ou moins rempli en fonction de la quantité de volume
         fenetre.blit (img_volume, (35,50))
         pygame.draw.rect(fenetre, [15,56, 15], [49, 52, int(1.92*self.vollvl), 10], 0)
         self.displayvolume -=1
 
+    # Mis à jour de l'affichage
     pygame.display.flip()
 
-## Fonction qui clean l'ancien affichage :
+
+## Fonction qui clean l'ancien affichage (en affichant le fond vert) :
 def clean_affichage(screen):
     fenetre.blit(fond_vert, (0,0))
     pygame.display.flip()
 
-## Variables globales pour la vitesse
-jspeed = -16
-speed = 4.5*2
-
-
+    
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
 
 class GameState():
     def __init__(self):
-        self.vollvl = vollvl
-        self.state = 'menu'
-        self.displayvolume = 0
-        self.choix_menu = 0
-        self.clean = 0
-        self.speed = speed
-        self.score=0
-        self.alive = True
-        self.stopjump = False
-        self.jump = False
-        self.fall = False
+        self.vollvl = vollvl # Gère le volume
+        self.state = 'menu' # état par défaut : menu
+        self.displayvolume = 0 # Variable qui dit si il faut afficher le rectangle du volume ou pas
+        self.choix_menu = 0 # Choix du menu (0 pour jouer et 1 pour quitter). Permet de savoir sur quel choix est l'utilisateur pour afficher le curseur au bon endroit et savoir ce qu'il souhaite faire quand il appuye sur entrée
+        self.clean = 0 # Permet de savoir si on passe de l'état menu -> jeu  et jeu -> menu pour faire des modifications UNIQUEMENT lors de la première itération
+        self.speed = speed # fixe le speed du jeu
+        self.score=0 # Initialisation du score à 0 (ne trichez pas svp)
+        self.alive = True # Etat du blob (vivant ou mort)
+        self.stopjump = False # permet de savoir si l'utilisateur veut arrêter de sauter (il appuye sur saut et relâche avant d'avoir atteint la hateur max du saut)
+        self.jump = False # Permet de savoir si on est en train de sauter (pour éviter de spam le saut)
+        self.fall = False # Permet de savoir si on est en chute libre (après avoir atteint le saut max, ou si l'utilisateur arrête de saut, on passe en chut libre)
         self.crouch = False
         self.jspeed= jspeed #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
         self.gravity = 1
