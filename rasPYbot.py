@@ -49,6 +49,7 @@ speed = 4.5*2 # *2 car on est passé de 60 fps à 30 fps
 
 # Le principe est le suivant : 
     # 1) on créé des fonctions
+    #Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
 def up_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
 def up_release():
@@ -266,53 +267,47 @@ class GameState():
         self.stopjump = False # permet de savoir si l'utilisateur veut arrêter de sauter (il appuye sur saut et relâche avant d'avoir atteint la hateur max du saut)
         self.jump = False # Permet de savoir si on est en train de sauter (pour éviter de spam le saut)
         self.fall = False # Permet de savoir si on est en chute libre (après avoir atteint le saut max, ou si l'utilisateur arrête de saut, on passe en chut libre)
-        self.crouch = False
-        self.jspeed= jspeed #Prends la valeur 5 ou -5 pour le saut : la coordonnée y du blob va prendre descendre de (0->-50->0)
-        self.gravity = 1
-        self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]]
-        self.tab_type_nuage = [1, 2, 3]
-        self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]]
-        self.tab_type_sol = [1, 2, 3,4,4, 3, 2, 1, 2, 2, 3,4,4, 3, 1]
+        self.crouch = False # False : le blob n'est pas accroupi // True : le blob est accroupi
+        self.jspeed= jspeed #Prends la valeur + ou - jspeed. Utiliser lors du saut, elle permet d'avoir un saut avec une vitesse non linéaire
+        self.gravity = 1 # Gravité, aussi utilisé pour avoir un saut avec une vitesse non linéaire (surtout pour la chute)
+        self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]] # Tableau qui contient la position de chaque nuage. On utilise 3 nuages au maximum.Leur coordonnée y est prise aléatoirement.
+        self.tab_type_nuage = [1, 2, 3] # Autre tableau qui définit le type du nuage. On utilise ici 3 nuages avec chaque nuage étant différent au démarrage du jeu.
+        self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]] # De la même façon que pour les nuages, on a un tableau de 11 sols, (pour recouvrir toute la longueur de l'écran) avec les coordonnées x et y
+        self.tab_type_sol = [1, 2, 3,4,4, 3, 2, 1, 2, 2, 3,4,4, 3, 1] # Tableau qui contient les types de sols.
 
 
+        #  Méthode pour gérer le menu
     def menu(self):
         if (self.clean == 1):
-            pygame.event.set_allowed([pygame.KEYDOWN, pygame.KEYUP])
-            self.clean = 0
-            pygame.event.clear()
+            # A chaque fois qu'on meurt / qu'on revient dans le menu, on :
+            pygame.event.set_allowed([pygame.KEYDOWN, pygame.KEYUP]) # Réactive les touches. (On les désactive pour éviter que le joueur spam un bouton entre ou le moment ou il meurt et le jeu retourne au menu)
+            self.clean = 0 # On repasse la variable à 0
+            pygame.event.clear() # On clear l'affichage en affichant le fond vert
 
-        affiche_menu(self.choix_menu,self)
+        affiche_menu(self.choix_menu,self) # On appelle la fonction qui affiche le menu en fonction du choix du joueur
 
         for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
             if event.type == QUIT:     #Si un de ces événements est de type QUIT
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: # Si le joueur appuie sur le bouton qui correspond à échap : 
+                pygame.quit() # On quitte pygame
+                sys.exit() # On ferme la fenêtre
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-                self.choix_menu = (self.choix_menu+1)%NOMBRE_DE_CHOIX_MENU
-                #canal = select.play()
-                #os.system("aplay /game/Resources/musiques/select.wav")
-                subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"],shell=True)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN: # Si le joueur appuie sur le bouton qui correspond à "bas" 
+                self.choix_menu = (self.choix_menu+1)%NOMBRE_DE_CHOIX_MENU # on change la variable qui contient le choix du menu (pour rafficher le bon menu)
+                subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"],shell=True) # On utilise subprocess pour jouer le son. Subprocess va lancer la commande aplay dans un shell
 
-
-
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                self.choix_menu = (self.choix_menu-1)%NOMBRE_DE_CHOIX_MENU
-                #canal = select.play()
-                #os.system("aplay /game/Resources/musiques/select.wav")
-                subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"], shell=True)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_UP: # Si le joueur appuie sur le bouton qui correspond à "haut" 
+                self.choix_menu = (self.choix_menu-1)%NOMBRE_DE_CHOIX_MENU # Mis à jour de la variable qui stocke le choix du joueur
+                subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"], shell=True) # Joue la musique
 
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and self.state != 'game': #K RETURN = entrée
-                #canal = valide.play()
-                #os.system("aplay /game/Resources/musiques/valid.wav")
-                subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"], shell=True)
-                pygame.event.set_blocked(None)
-                time.sleep(0.5)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and self.state != 'game': # Si le joueur valide son choix via le bouton qui correspond à espace
+                subprocess.Popen(["aplay /game/Resources/musiques/select.wav", "-N",  "--test-nowait"], shell=True) # Lance la musique de la validation
+                pygame.event.set_blocked(None) # On bloque les entrées d'events
+                time.sleep(0.5) # Petite pause pour laisser le son de se jouer
 
                 if (self.choix_menu == 0):
                     clean_affichage(fenetre)
