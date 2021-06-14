@@ -282,72 +282,79 @@ class GameState():
                 time.sleep(0.5) # Petite pause pour laisser le son de se jouer
 
                 if (self.choix_menu == 0):
-                    clean_affichage(fenetre)
-                    pygame.display.set_caption("Blob Runner") # Nom de la fenêtre
+                    # Si le joueur veut jouer :
+                    clean_affichage(fenetre) # On affiche le fond vert pour clean l'affichage
+                    # pygame.display.set_caption("Blob Runner") # Nom de la fenêtre
                     self.state = 'game'
-                    self.alive = True #Si jamais on retourne au menu, il faut remettre vivant à true
+                    self.alive = True 
 
                 elif (self.choix_menu == 1):
-                    #subprocess.Popen(['kill -9 $(ps aux | grep "sh /game/Resources/bouclemusique.sh" | grep -v "grep" |tr -s " "| cut -d " " -f 2)'], shell=True)
+                    # Si on quitte le jeu, on termine le subprocess musique_boucle (qui joue la musique en boucle via la commande aplay) il faut donc aussi kill la commande apalay)
                     musique_boucle.terminate()
                     subprocess.Popen(['kill -9 $(ps aux | grep "aplay /game/Resources/musiques/8bit.wav -N --test-nowait" | grep -v "grep" |tr -s " "| cut -d " " -f 2)'],  shell=True )
                     pygame.quit()
                     sys.exit()
 
+            # Pour le réglage du volume, on utilise les flêches droites et gauches. 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                if self.vollvl <100 :
-                    self.vollvl = self.vollvl + 10
-                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%"
-                    subprocess.Popen(["amixer cset numid=1 " + vol],shell=True)
-                self.displayvolume = 30
+                if self.vollvl <100 : # La variable vollvl permet d'autoriser 10 niveaux de volumes. De base il est a 50, et il peut monter jusqu'a 100 max
+                    self.vollvl = self.vollvl + 10 # Monte d'1 niveau sonore
+                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%" # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
+                    subprocess.Popen(["amixer cset numid=1 " + vol],shell=True) # Application de ce volume via la commande amixer qui va s'effectuer dans un shell, le numid étant le numéro de la carte son
+                self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-                if self.vollvl >0:
-                    self.vollvl = self.vollvl - 10
-                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%"
-                    subprocess.Popen(["amixer cset numid=1 " + vol], shell=True)
-                self.displayvolume = 30
+                if self.vollvl >0:  # La variable vollvl permet d'autoriser 10 niveaux de volumes. De base il est a 50, et il peut baisser jusqu'a 0
+                    self.vollvl = self.vollvl - 10 # Baisse d'1 niveau sonore
+                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%" # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
+                    subprocess.Popen(["amixer cset numid=1 " + vol], shell=True) # Application de ce volume via la commande amixer qui va s'effectuer dans un shell, le numid étant le numéro de la carte son
+                self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
 
 
     def game(self):
         # change titre fenêtre
         if (self.clean == 0):
-            pygame.event.set_allowed([pygame.KEYDOWN, pygame.KEYUP])
-            pygame.display.set_caption("Blob Runner")
-            pygame.event.clear()
-            self.clean = 1
-        self.Affiche_scene_jeu()
+            pygame.event.set_allowed([pygame.KEYDOWN, pygame.KEYUP]) # On autorise uniquement les entrées d'event de type pressage / relachage de boutons
+            #pygame.display.set_caption("Blob Runner")
+            pygame.event.clear() # On clear les event qui étaient présents
+            self.clean = 1 # On passe cette variable à 1 car on veut faire les commandes ci-dessus uniquement à la première itération
+            
+        self.Affiche_scene_jeu() # On lance l'affichage de la scène du jeu
+        
         for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
             if event.type == QUIT:     #Si un de ces événements est de type QUIT
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: # Echap = retour menu
                 # blob mort
                 self.alive = False
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and self.jump == False and self.crouch == False:
+                # Pour sauter, on vérifie que la touche espace a été pressé, qu'on n'est pas déjà en train de sauter, et qu'on est pas accroupi
                 self.jump = True
-
-                #canal = jump.play()
-                #os.system("aplay /game/Resources/musiques/jump.wav")
-                subprocess.Popen(["aplay /game/Resources/musiques/jump.wav", "-N",  "--test-nowait"], shell=True)
+                subprocess.Popen(["aplay /game/Resources/musiques/jump.wav", "-N",  "--test-nowait"], shell=True) # Joue la musique du saut sans bloquer le programme
 
 
             if event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.jump == True and self.crouch == False:
+                # Si la touche espace est relâchée PENDANT un saut, et sans être accroupi, alors on va arrêter de monter et entamer la chute prématurement
                 self.stopjump = True
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN and self.jump == False and self.crouch == False:
+                # Pour s'accroupir il faut presser la toucher (et maintenir) la touche bas, on vérifie qu'on est pas déjà accroupi et qu'on ne saute pas.
                 self.crouch = True
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN and self.jump == True :
+                # Si maintenant on s'accroupi PENDANT un saut, alors on entame une chute encore plus rapide
                 self.fall = True
                 self.crouch= True
 
             if event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
+                # Si on relache le bouton s'accroupir, on repasse le blob debout
                 self.crouch = False
 
+                # Même gestion de volume que pour le menu
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 if self.vollvl <100 :
                     self.vollvl = self.vollvl + 10
@@ -364,45 +371,51 @@ class GameState():
 
 
     def state_manager(self):
+        # Gère l'état (menu ou jeu)
         if self.state == 'menu':
             self.menu()
         elif self.state == 'game':
+            # On augmente la speed du jeu ici
             self.speed = self.speed + 0.0025
             self.game()
 
-    def ynuage(self, a): #Permet d'éviter de faire spawn un nuage aux même coordonnées d'un autre nuage !
-        #Y_a_placer = self.tab_pos_nuage[a][1]
-        if (a<=0):
+    def ynuage(self, a): #Permet d'éviter de faire spawn un nuage aux même coordonnées y d'un autre nuage !
+        # La variable a permet de savoir le numéro dans le tableau du nuage à placer.
+        # En fonction de ce numéro, il faut vérifier que les nouvelles coordonnées y du nuage ne se superposent pas avec un autre nuage!
+        if (a<=0): # Si c'est le nuage 0 :
+            # On va le comparer avec le nuage 1 et 2
             Y1 = self.tab_pos_nuage[1][1]
             Y2 = self.tab_pos_nuage[2][1]
             while((self.tab_pos_nuage[a][1] <  Y1+24 and self.tab_pos_nuage[a][1] >  Y1-24) or (self.tab_pos_nuage[a][1] <  Y2+24 and self.tab_pos_nuage[a][1] >  Y2-24)):
-                self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11)
-                #Y_a_placer = self.tab_pos_nuage[a][1]
+                self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11) # On prend un random entre 24 et 178 et on revérifie que ça match.
+                
         elif(a==1):
+            # Comparaison avec 0 et 2
             Y0 = self.tab_pos_nuage[0][1]
             Y2 = self.tab_pos_nuage[2][1]
             while((self.tab_pos_nuage[a][1] <  Y0+24 and self.tab_pos_nuage[a][1] >  Y0-24) or (self.tab_pos_nuage[a][1] <  Y2+24 and self.tab_pos_nuage[a][1] >  Y2-24)):
                 self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11)
-                #Y_a_placer = self.tab_pos_nuage[a][1]
 
         elif(a>=2):
+              # Comparaison avec 0 et 1
             Y0 = self.tab_pos_nuage[0][1]
             Y1 = self.tab_pos_nuage[1][1]
             while((self.tab_pos_nuage[a][1] <  Y0+24 and self.tab_pos_nuage[a][1] >  Y0-24) or (self.tab_pos_nuage[a][1] <  Y1+24 and self.tab_pos_nuage[a][1] >  Y1-24)):
                 self.tab_pos_nuage[a][1] = random.randrange(24, 178, 11)
-                #Y_a_placer = self.tab_pos_nuage[a][1]
 
 
 
     def Affiche_scene_jeu(self):
+        # On reset l'affichage avec l'affichage du fond vert
         fenetre.blit(fond_vert, (0,0))
-
-        ##Affiche du score :
-        self.score= self.score + ceil(self.speed/15) #partie entière de la vitesse/2 arrondi au supérieur
+        
+        # Affiche du score :
+        self.score= self.score + ceil(self.speed/15) #partie entière de la vitesse/15 arrondi au supérieur
         texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
         fenetre.blit(texte, (200, 10))
 
         ## Affichage nuages
+        # On affichage les nuages en fonction de leur type (cloud1 2 ou 3)
         for i in range (len(self.tab_pos_nuage)) :
             if(self.tab_type_nuage[i] == 1):
                 fenetre.blit(cloud1, self.tab_pos_nuage[i])
@@ -416,13 +429,14 @@ class GameState():
                 self.tab_pos_nuage[i][0] = random.randrange(x_fen, 2*x_fen, 20)
                 # Coordonnée Y :
                 self.tab_pos_nuage[i][1] = random.randrange(24, 178, 11)
-                # On doit checker qu'il ne spawn pas sur un autre nuage >_<
-                self.ynuage(i)  #Vérifie la coordonnée Y pour ne pas avoir 2 nuages l'un sur l'autre !
-                self.tab_type_nuage[i] = random.randrange(1, 4, 1)  #Nuage aléatoire
+                # On doit checker qu'il ne spawn pas sur un autre nuage :
+                self.ynuage(i)  #Vérifie la coordonnée Y pour ne pas faire spawn le nuage aux même coordonnées y d'un autre nuage et risquer une superposition
+                self.tab_type_nuage[i] = random.randrange(1, 4, 1)  #Nuage aléatoire (cloud1 2 ou 3)
 
             # Vitesse en fonction de sa coordonnée y :
+            # Permet d'avoir un effet de profondeur
             if(self.tab_pos_nuage[i][1] < 76):
-                self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0] - int(0.2*self.speed) #int(0.004*(50->100)*self.speed)
+                self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0] - int(0.2*self.speed) 
 
             elif(self.tab_pos_nuage[i][1] >= 76 and self.tab_pos_nuage[i][1] < 127):
                 self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0] - int(0.3*self.speed)
@@ -430,8 +444,8 @@ class GameState():
             elif(self.tab_pos_nuage[i][1] >= 127):
                 self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0]-int(0.4*self.speed)
 
+        # Affichage du rectangle pour le volume si l'utilisateur l'a changé :
         if self.displayvolume>0 :
-            #print("self.displayvolume")
             fenetre.blit (img_volume, (49,50))
             pygame.draw.rect(fenetre, [15, 56, 15], [63, 52, 1.92*self.vollvl, 10], 0)
             self.displayvolume -=1
@@ -439,24 +453,20 @@ class GameState():
 
         ## affichage obstacles et fantome
 
-#En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
-
         obstacle.update()
         obstacle.x = obstacle.x- self.speed #Fais bouger l'élément vers la gauche
-        if(obstacle.x<-50):  #Si un obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
-            #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
+        if(obstacle.x<-50):  #Si l'obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
+            # On la raffiche en dehors de l'écran, à droite d'une distance random.
             obstacle.x = random.randrange(x_fen+50, 3*x_fen, 5)
             # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
             obstacle.type = random.randrange(0, 3, 1)  #obstacle aléatoire
-            if(obstacle.type == 2):
+            
+            if(obstacle.type == 2): # Fantome = modificiation coordonnée y
                 obstacle.y = random.randrange(130, 136, 2)
-                #self.obstacle = Fantome()
             elif(obstacle.type == 1):
                 obstacle.y  = 197
-                #self.obstacle = Large_object()
             elif(obstacle.type == 0):
                 obstacle.y  = 197
-                #self.obstacle = Small_object()
             obstacle.change_mask(); #Update du mask car on a changé d'obstacle
 
 
@@ -478,11 +488,11 @@ class GameState():
                 self.tab_pos_sol[i][0] = 330 + (self.tab_pos_sol[i][0]+33)
                 self.tab_type_sol[i] = random.randrange(1, 5, 1)  #Sol aléatoire
 
+                
         ## Affichage du blob (jump)
+        if (self.alive): # Si on est en vie
 
-        if (self.alive):
-
-            if(self.jump):
+            if(self.jump): # On vérifie si on saute :
                 blob.blob_y= blob.blob_y + self.jspeed*2
                 #print ("jump=",self.jump," speed=",self.jspeed," stopjump=",self.stopjump)
                 if(self.stopjump and self.jspeed < 0):
@@ -510,15 +520,15 @@ class GameState():
                     blob.update()
                     fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
 
-            else:
+            else: # Si on saute pas
 
-                if(self.crouch):
+                if(self.crouch): # On vérifie si on veut s'accroupir
                     blob_crouch.x = blob.blob_x
-                    blob_crouch.y = blob.blob_y+9
+                    blob_crouch.y = blob.blob_y+9 #Il faut décaler de 9x la coordonnée y du blob crouch par rapport au blob, car l'affichage se fait par le haut gauche. Comme le blob crouch est plus petit, il faut donc augmenter de 9px y.
                     blob_crouch.update()
                     fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
 
-                else:
+                else: # Sinon on reset les coordonnées du blob à ses coordonnées de base (180 et 10)
                     blob.blob_x = 10
                     blob.blob_y = 180
                     blob.update()
@@ -527,29 +537,32 @@ class GameState():
 
 
         else: #si le blob est mort
-            pygame.event.set_blocked(None)
+            pygame.event.set_blocked(None) # Si on est mort, on bloque toutes les entrées d'event
+            # Mis à jour du score si score battu :
             if(self.score > int(high_score)):
                 f_high_score = open(r"./Resources/high_score.txt", "w") # Ouverture en écriture.
                 f_high_score.write(str(self.score))
                 f_high_score.close()
-            obstacle.__init__()
-            fenetre.blit(blob_dead, (blob.blob_x, blob.blob_y))
-            fenetre.blit(game_over_texte, (50,90))
+            obstacle.__init__() # Reset obstacle
+            fenetre.blit(blob_dead, (blob.blob_x, blob.blob_y)) # affichage blob mort
+            fenetre.blit(game_over_texte, (50,90))  # affichage text game over
             pygame.display.flip() # Pour afficher le text du game over
-            #canal = game_over.play()
-            #os.system("aplay /game/Resources/musiques/gameover.wav")
-            subprocess.Popen(["aplay /game/Resources/musiques/gameover.wav", "-N",  "--test-nowait"],  shell =True)
-            time.sleep(2)
-            clean_affichage(fenetre)
-            pygame.display.set_caption("Menu de la ScareBot")
-            self.__init__()
-            self.clean = 1
-        pygame.display.flip()
+            subprocess.Popen(["aplay /game/Resources/musiques/gameover.wav", "-N",  "--test-nowait"],  shell =True) # Musique mort
+            time.sleep(2) # sleep de 2 secondes pour laisser le temps à la musique de se jouer
+            clean_affichage(fenetre) # Affichage fond vert pour reset affichage
+            self.__init__() # Reset de toutes les variables
+            self.clean = 1 # On passe la variable à 1, qui permet d'effectuer des commandes uniquement lors de la première itération
+            
+        pygame.display.flip() # Enfin, on affiche à l'écran.
 
-        all_sprite.update()
+        all_sprite.update() # On update tout les sprite
+        # Gestion collision :
+        
+        # Si accroupi on regarde la collision entre blob crouch et obstacle
         if(self.crouch):
             if(pygame.sprite.collide_mask(blob_crouch, obstacle)):
                 self.alive = False
+        # Sinon entre blob et obstacle
         else:
             if(pygame.sprite.collide_mask(blob, obstacle)):
                 self.alive = False
@@ -561,51 +574,18 @@ class GameState():
 ## Fin de la classe GameState
 
 ## Variables
-continuer = 1
+continuer = 1 # Boucle infinie
 game_state = GameState() #on définit un objet de la classe gamestate
 fps = 30
 
 ##Lancement du son du jeu
-# theme_canal = theme.play(-1) #-1 = musique en boucle :)
-# theme_canal.set_volume(0.7)
 
-#os.system("aplay /game/Resources/musiques/8bit.wav")
-
-musique_boucle = subprocess.Popen(["while true; do aplay /game/Resources/musiques/8bit.wav -N --test-nowait ; sleep 2; done"], shell = True)
-subprocess.Popen(["amixer cset numid=1 70%"],shell=True)
+musique_boucle = subprocess.Popen(["while true; do aplay /game/Resources/musiques/8bit.wav -N --test-nowait ; sleep 2; done"], shell = True) # Musique du thème principal en boucle
+subprocess.Popen(["amixer cset numid=1 70%"],shell=True) # Volume à 70% par défaut
 ## Boucle infinie pour faire tourner le jeu
 
 while continuer:
     game_state.state_manager()
     clock.tick(fps) # Bloque le jeu à fps FPS
-    #print(clock.get_fps())
 pygame.quit()
 sys.exit()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
