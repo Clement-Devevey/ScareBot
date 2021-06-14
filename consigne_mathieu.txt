@@ -1,2 +1,0 @@
-pour pull : repository -> git bash -> git fetch -> git stash  -> git rebase origin/master -> git stash apply -> git mergetool
-Dans l'interface : utiliser CTRL + 1 ou 2 ou 3 pour choisir quelle version garder
