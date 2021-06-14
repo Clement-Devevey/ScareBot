@@ -5,7 +5,7 @@
 #include <cstdlib> //random
 #include <math.h> //ceil()
 #include <string>
-#include <thread>
+
 using namespace std;
 int xwin = 313;
 int ywin = 245;
