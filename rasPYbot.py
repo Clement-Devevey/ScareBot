@@ -4,6 +4,16 @@ from pygame.locals import *
 from math import ceil,log10
 from gpiozero import LED, Button
 
+## Variables
+continuer = 1
+fps = 60
+## Variables globales pour la vitesse
+jspeed = -18*(60/fps)  #Vitesse de saut
+start_speed = 5*(60/fps) #Vitesse de défilement de départ
+acc_speed = 0.0025*(60/fps) #Accélération de la vitesse de défilement
+gravity = 1.2*(60/fps)**2   #Force de gravité
+
+
 # Suppression de la souris sur l'écran                            
 os.environ["SDL_NOMOUSE"] = "1"
 
@@ -205,10 +215,7 @@ def clean_affichage(screen):
     pygame.display.flip()
 
 
-## Variables globales pour la vitesse
-jspeed = -10  #Vitesse de saut
-speed = 4.5 #Vitesse de déplacement
-gravity = 0.3   #Force de gravité
+
 
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
 class GameState():
@@ -218,7 +225,7 @@ class GameState():
         self.displayvolume = 0 # Variable qui dit si il faut afficher le rectangle du volume ou pas
         self.choix_menu = 0 # Choix du menu (0 pour jouer et 1 pour quitter). Permet de savoir sur quel choix est l'utilisateur pour afficher le curseur au bon endroit et savoir ce qu'il souhaite faire quand il appuye sur entrée
         self.clean = 0 # Permet de savoir si on passe de l'état menu -> jeu  et jeu -> menu pour faire des modifications UNIQUEMENT lors de la première itération
-        self.speed = speed # fixe le speed du jeu
+        self.speed = start_speed # fixe le speed du jeu
         self.score=0 # Initialisation du score à 0 (ne trichez pas svp)
         self.alive = True # Etat du blob (vivant ou mort)
         self.stopjump = False # permet de savoir si l'utilisateur veut arrêter de sauter (il appuye sur saut et relâche avant d'avoir atteint la hateur max du saut)
@@ -355,7 +362,7 @@ class GameState():
             self.menu()
         elif self.state == 'game':
             # On augmente la speed du jeu ici
-            self.speed = self.speed + 0.0025
+            self.speed = self.speed + acc_speed
             self.game()
 
     def ynuage(self, a): #Permet d'éviter de faire spawn un nuage aux même coordonnées y d'un autre nuage !
@@ -475,30 +482,35 @@ class GameState():
         if (self.alive): # Si on est en vie
 
             if(self.jump): # On vérifie si on saute :
-                blob.blob_y= blob.blob_y + self.jspeed*2
+                blob.blob_y= blob.blob_y + self.jspeed
+                print(blob.blob_y)
 
-                if(blob.blob_y>=180):
+                if(blob.blob_y>180):
                     blob.blob_y=180
                     self.jspeed= jspeed
                     self.jump = False
                     self.stopjump = False
                     self.fall = False
 
-                if(self.stopjump and self.jspeed < 0):
-                    self.jspeed= int(jspeed/4)
-                    self.stopjump = False
-                
-                if self.fall:
-                    self.jspeed=self.jspeed + 6*self.gravity
-                    blob_crouch.x = blob.blob_x
-                    blob_crouch.y = blob.blob_y+9
-                    blob_crouch.update()
-                    fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
-                else:
-                    self.jspeed=self.jspeed + 2*self.gravity
-                    blob.update()
-                    fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
+                else :
 
+                    if(self.stopjump and self.jspeed < 0):
+                        self.jspeed= int(jspeed/4)
+                        self.stopjump = False
+                    
+                    if self.fall:
+                        self.jspeed=self.jspeed + 3*self.gravity
+                        blob_crouch.x = blob.blob_x
+                        blob_crouch.y = blob.blob_y+9
+                        blob_crouch.update()
+                    else:
+                        self.jspeed=self.jspeed + self.gravity
+                        blob.update()
+
+                if self.fall :
+                    fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
+                else :
+                    fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
 
             else: # Si on saute pas
                 if(self.crouch): # On vérifie si on veut s'accroupir
@@ -546,9 +558,7 @@ class GameState():
 ## Fin de la classe GameState
 
 
-## Variables
-continuer = 1
-fps = 60
+
 
 ##Lancement du son du jeu
 # theme_canal = theme.play(-1) #-1 = musique en boucle :)
@@ -558,9 +568,6 @@ fps = 60
 
 musique_boucle = subprocess.Popen(["while true; do aplay /game/Resources/musiques/8bit.wav -N --test-nowait ; sleep 2; done"], shell = True)
 subprocess.Popen(["amixer cset numid=1 70%"],shell=True)  # Musique du thème principal en boucle
-
-
-
 
 
 game_state = GameState() #on définit un objet de la classe gamestate
