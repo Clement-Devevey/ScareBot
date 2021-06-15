@@ -17,3 +17,7 @@ A compiler directement sur la raspberry, pour utiliser sans X11 voir : https://g
 
 
 <p>&copy; 2021 Scaredom @Mathieu SEMIN</p>
+
+
+
+pour les GPIOS voir http://abyz.me.uk/rpi/pigpio/pdif2.html
