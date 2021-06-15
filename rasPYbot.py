@@ -9,8 +9,8 @@ continuer = 1
 fps = 60
 ## Variables globales pour la vitesse
 jspeed = -18*(60/fps)  #Vitesse de saut
-start_speed = 5*(60/fps) #Vitesse de défilement de départ
-acc_speed = 0.0025*(60/fps) #Accélération de la vitesse de défilement
+start_speed = 10*(60/fps) #Vitesse de défilement de départ
+acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
 gravity = 1.2*(60/fps)**2   #Force de gravité
 
 
@@ -47,57 +47,57 @@ cloud3 = pygame.image.load("./Resources/images/cloud 3.png").convert_alpha()
 img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 
 
-# ## Initialisation des Boutons et pins
+## Initialisation des Boutons et pins
 
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
-# def up_press():
-#     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
-# def up_release():
-#     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_UP))
-# def down_press():
-#     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
-# def down_release():
-#     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_DOWN))
-# def a_press():
-#     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
-# def a_release():
-#     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE))
-# def b_press():
-#     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
-# def b_release():
-#     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RETURN))
-# def left_press():
-#     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_LEFT))
-# def left_release():
-#     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_LEFT))
-# def right_press():
-#     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
-# def right_release():
-#     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RIGHT))
+def up_press():
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
+def up_release():
+    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_UP))
+def down_press():
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
+def down_release():
+    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_DOWN))
+def a_press():
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
+def a_release():
+    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE))
+def b_press():
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
+def b_release():
+    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RETURN))
+def left_press():
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_LEFT))
+def left_release():
+    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_LEFT))
+def right_press():
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
+def right_release():
+    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RIGHT))
 
 # 2) On affecte chaque bouton au bon pin GPIO (voir la documentation de la PI ZERO (pinout PI ZERO) : https://pi4j.com/1.2/pins/model-zerow-rev1.html
-# up=Button(16, False, None, 0.075, 1, False, None)#haut
-# right=Button(26, False, None, 0.075, 1, False, None)
-# down=Button(6, False, None, 0.075, 1, False, None)#bas
-# left=Button(5, False, None, 0.075, 1, False, None)
-# b=Button(17, False, None, 0.075, 1, False, None)#droite
-# a=Button(27, False, None, 0.075, 1, False, None)#gauche
+up=Button(16, False, None, 0.075, 1, False, None)#haut
+right=Button(26, False, None, 0.075, 1, False, None)
+down=Button(6, False, None, 0.075, 1, False, None)#bas
+left=Button(5, False, None, 0.075, 1, False, None)
+b=Button(17, False, None, 0.075, 1, False, None)#droite
+a=Button(27, False, None, 0.075, 1, False, None)#gauche
 
 # 3) On affecte à chaque état du bouton (pressé ou relaché) une fonction. Celle-ci sera appelé n'importe quand via interruptions.
-# up.when_pressed = up_press
-# up.when_released = up_release
-# right.when_pressed = right_press
-# right.when_released = right_release
-# down.when_pressed = down_press
-# down.when_released = down_release
-# left.when_pressed = left_press
-# left.when_released = left_release
-# a.when_pressed = a_press
-# a.when_released = a_release
-# b.when_pressed = b_press
-# b.when_released = b_release
+up.when_pressed = up_press
+up.when_released = up_release
+right.when_pressed = right_press
+right.when_released = right_release
+down.when_pressed = down_press
+down.when_released = down_release
+left.when_pressed = left_press
+left.when_released = left_release
+a.when_pressed = a_press
+a.when_released = a_release
+b.when_pressed = b_press
+b.when_released = b_release
 
 
 
@@ -483,7 +483,7 @@ class GameState():
 
             if(self.jump): # On vérifie si on saute :
                 blob.blob_y= blob.blob_y + self.jspeed
-                print(blob.blob_y)
+                #print(blob.blob_y)
 
                 if(blob.blob_y>180):
                     blob.blob_y=180
