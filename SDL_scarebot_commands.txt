@@ -4,3 +4,7 @@ apt-get install libsdl2-mixer-dev
 apt-get install libsdl2-ttf-dev
 
 https://lazyfoo.net/tutorials/SDL/index.php
+
+
+
+Pour les GIOS : http://abyz.me.uk/rpi/pigpio/pdif2.html
