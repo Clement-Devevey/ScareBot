@@ -1,6 +1,0 @@
-fbv -d 1 "demon.png"
-modprobe
-modprobe
-cd /game
-python3 start.py
-python3 rasPYbot.py&
