@@ -13,8 +13,9 @@ start_speed = 10*(60/fps) #Vitesse de défilement de départ
 acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
 gravity = 1.2*(60/fps)**2   #Force de gravité
 
-
-# Suppression de la souris sur l'écran                            
+# Configuration drivers
+os.environ['SDL_VIDEODRIVER'] = 'directfb'
+os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
 
 ## Initialisation de la bibliothèque Pygame
