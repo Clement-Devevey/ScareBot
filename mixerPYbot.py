@@ -157,6 +157,7 @@ class Obstacle(pygame.sprite.Sprite):
         self.y = 197 # La coordonnée y est de 197.
         self.type = 1 # Initialisation de l'obstacle à un petit obstacle
         # 0: large , 1: small, 2 : fantome
+        
 
     def update(self):
         """ Met à jour les coordonnées du rectangle puis ajoute l'affichage de l'obstacle sur la fenêtre 
@@ -258,6 +259,27 @@ class GameState():
         self.high_score = f_high_score.readline()
         f_high_score.close()
 
+    def reset(self):
+        self.state = 'menu' # état par défaut : menu
+        self.displayvolume = 0 # Variable qui dit si il faut afficher le rectangle du volume ou pas
+        self.choix_menu = 0 # Choix du menu (0 pour jouer et 1 pour quitter). Permet de savoir sur quel choix est l'utilisateur pour afficher le curseur au bon endroit et savoir ce qu'il souhaite faire quand il appuye sur entrée
+        self.clean = 0 # Permet de savoir si on passe de l'état menu -> jeu  et jeu -> menu pour faire des modifications UNIQUEMENT lors de la première itération
+        self.speed = start_speed # fixe le speed du jeu
+        self.score=0 # Initialisation du score à 0 (ne trichez pas svp)
+        self.alive = True # Etat du blob (vivant ou mort)
+        self.stopjump = False # permet de savoir si l'utilisateur veut arrêter de sauter (il appuye sur saut et relâche avant d'avoir atteint la hateur max du saut)
+        self.jump = False # Permet de savoir si on est en train de sauter (pour éviter de spam le saut)
+        self.fall = False # Permet de savoir si on est en chute libre (après avoir atteint le saut max, ou si l'utilisateur arrête de saut, on passe en chut libre)
+        self.crouch = False # False : le blob n'est pas accroupi // True : le blob est accroupi
+        self.jspeed= jspeed #Prends la valeur + ou - jspeed. Utiliser lors du saut, elle permet d'avoir un saut avec une vitesse non linéaire
+        self.gravity = gravity # Gravité, aussi utilisé pour avoir un saut avec une vitesse non linéaire (surtout pour la chute)
+        self.tab_pos_nuage = [[400,random.randrange(24, 178, 11)], [700,random.randrange(24, 178, 11)],[1000,random.randrange(24, 178, 11)]] # Tableau qui contient la position de chaque nuage. On utilise 3 nuages au maximum.Leur coordonnée y est prise aléatoirement.
+        self.tab_type_nuage = [1, 2, 3] # Autre tableau qui définit le type du nuage. On utilise ici 3 nuages avec chaque nuage étant différent au démarrage du jeu.
+        self.tab_pos_sol = [[0,203], [33,203], [66,203], [99,203], [132,203], [165,203], [198,203], [231,203], [264,203], [297,203], [330,203]] # De la même façon que pour les nuages, on a un tableau de 11 sols, (pour recouvrir toute la longueur de l'écran) avec les coordonnées x et y
+        self.tab_type_sol = [1, 2, 3,4,4, 3, 2, 1, 2, 2, 3,4,4, 3, 1] # Tableau qui contient les types de sols.
+        f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture.
+        self.high_score = f_high_score.readline()
+        f_high_score.close()
 
     def menu(self):
         """ Gesion du menu (affichage et evènements) """
@@ -559,7 +581,7 @@ class GameState():
             time.sleep(2) # sleep de 2 secondes pour laisser le temps à la musique de se jouer
             clean_affichage(fenetre) # Affichage fond vert pour reset affichage
             pygame.display.set_caption("Menu de la ScareBot")
-            self.__init__() # Reset de toutes les variables
+            self.reset() # Reset de toutes les variables
             self.clean = 1 # On passe la variable à 1, qui permet d'effectuer des commandes uniquement lors de la première itération
         pygame.display.flip() # Enfin, on affiche à l'écran.
 
