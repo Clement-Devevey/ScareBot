@@ -19,12 +19,16 @@ gravity = 1.2*(60/fps)**2   #Force de gravité
 os.environ['SDL_VIDEODRIVER'] = 'directfb'
 os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
-os.environ['SDL_AUDIODRIVER'] = 'alsa'
+os.environ['SDL_AUDIODRIVER'] = 'ALSAAUDIO'
 
 ## Initialisation de la bibliothèque Pygame
 pygame.init()
 pygame.mixer.init()
 
+sound_jump = pygame.mixer.Sound("./Resources/musiques/jump.wav")
+sound_select = pygame.mixer.Sound("./Resources/musiques/select.wav")
+sound_validate = pygame.mixer.Sound("./Resources/musiques/validate.wav")
+sound_game_over = pygame.mixer.Sound("./Resources/musiques/gameover.wav")
 theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
 theme_canal=theme.play(-1) # Joue la musique principale en boucle
 theme_canal.set_volume(vol) # set the volume, from 0.0 to 1.0 where higher is louder.
@@ -109,7 +113,6 @@ a.when_pressed = a_press
 a.when_released = a_release
 b.when_pressed = b_press
 b.when_released = b_release
-
 
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
@@ -214,7 +217,7 @@ def affiche_menu(choix,self):
     pygame.display.flip()
     if self.displayvolume>0 :
         # Affichage de la barre de volume
-        fenetre.blit (img_volume, (49,50))
+        fenetre.blit(img_volume, (49,50))
         pygame.draw.rect(fenetre, [15,56, 15], [63, 52, int(1.92*self.vollvl), 10], 0)
         self.displayvolume -=1                
     pygame.display.flip() # Mis à jour de l'affichage 
@@ -232,10 +235,10 @@ def clean_affichage(screen):
 class GameState():
     def __init__(self):
         # Chargement des sounds effects :
-        self.sound_jump = pygame.mixer.Sound("./Resources/musiques/jump.wav")
-        self.sound_select = pygame.mixer.Sound("./Resources/musiques/select.wav")
-        self.sound_validate = pygame.mixer.Sound("./Resources/musiques/validate.wav")
-        self.sound_game_over = pygame.mixer.Sound("./Resources/musiques/gameover.wav")
+        self.sound_jump = sound_jump
+        self.sound_select = sound_select
+        self.sound_validate = sound_validate
+        self.sound_game_over = sound_game_over
         self.canal_sound = pygame.mixer.find_channel()
         
         self.vollvl = vollvl # Gère le volume
@@ -565,7 +568,6 @@ class GameState():
                     blob.blob_y = 180
                     blob.update()
                     fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
-
 
 
         else: #si le blob est mort
