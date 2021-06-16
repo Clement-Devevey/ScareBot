@@ -6,6 +6,8 @@ from gpiozero import LED, Button
 
 ## Variables
 continuer = 1
+vollvl = 50 #Niveau initial du volume
+vol=0.7
 fps = 60
 ## Variables globales pour la vitesse
 jspeed = -18*(60/fps)  #Vitesse de saut
@@ -24,12 +26,11 @@ pygame.mixer.init()
 
 theme = pygame.mixer.Sound("/game/Resources/musiques/8bit.wav")
 theme_canal=theme.play(-1) # Joue la musique principale en boucle
-# theme_canal.set_volume(0.7) # set the volume, from 0.0 to 1.0 where higher is louder.
-subprocess.Popen(["amixer cset numid=1 70%"],shell=True)  # Musique du thème principal en boucle
+theme_canal.set_volume(vol) # set the volume, from 0.0 to 1.0 where higher is louder.
 
 clock = pygame.time.Clock()#Permet de régler les FPS (voir ligne 606 : clock.tick(fps))
 nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
-vollvl = 50 #Niveau initial du volume
+
 
 ## Création de la fenêtre (en pixels)
 x_fen = 320
@@ -298,17 +299,17 @@ class GameState():
 
             # Pour le réglage du volume, on utilise les flêches droites et gauches.
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-                if self.vollvl <100 : # La variable vollvl permet d'autoriser 10 niveaux de volumes. De base il est a 50, et il peut monter jusqu'a 100 max
+                if self.vollvl <100 : # La variable vollvl permet d'autoriser 10 niveaux de volumes. De base il est a 0.5, et il peut monter jusqu'a 1 max
                     self.vollvl = self.vollvl + 10 # Monte d'1 niveau sonore
-                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%" # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
-                    subprocess.Popen(["amixer cset numid=1 " + vol],shell=True) # Application de ce volume via la commande amixer qui va s'effectuer dans un shell, le numid étant le numéro de la carte son
+                    vol = int(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
+                    theme_canal.set_volume(vol) 
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
                 if self.vollvl >0:  # La variable vollvl permet d'autoriser 10 niveaux de volumes. De base il est a 50, et il peut baisser jusqu'a 0
                     self.vollvl = self.vollvl - 10 # Baisse d'1 niveau sonore
-                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%" # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
-                    subprocess.Popen(["amixer cset numid=1 " + vol], shell=True) # Application de ce volume via la commande amixer qui va s'effectuer dans un shell, le numid étant le numéro de la carte son
+                    vol = int(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
+                    theme_canal.set_volume(vol)
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
 
@@ -357,15 +358,15 @@ class GameState():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 if self.vollvl <100 :
                     self.vollvl = self.vollvl + 10
-                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%"
-                    subprocess.Popen(["amixer cset numid=1 " + vol],shell=True)
+                    vol = int(log10(self.vollvl+1)/log10(101))
+                    theme_canal.set_volume(vol)
                 self.displayvolume = 30
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
                 if self.vollvl >0:
                     self.vollvl = self.vollvl - 10
-                    vol = str(int(100*log10(self.vollvl+1)/log10(101)))+"%"
-                    subprocess.Popen(["amixer cset numid=1 " + vol], shell=True)
+                    vol = int(100*log10(self.vollvl+1)/log10(101))
+                    theme_canal.set_volume(vol)
                 self.displayvolume = 30
 
 
