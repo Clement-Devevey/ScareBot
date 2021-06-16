@@ -24,7 +24,7 @@ os.environ["SDL_NOMOUSE"] = "1"
 pygame.init()
 pygame.mixer.init()
 
-theme = pygame.mixer.Sound("/game/Resources/musiques/8bit.wav")
+theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
 theme_canal=theme.play(-1) # Joue la musique principale en boucle
 theme_canal.set_volume(vol) # set the volume, from 0.0 to 1.0 where higher is louder.
 
@@ -39,12 +39,6 @@ fenetre = pygame.display.set_mode((x_fen,y_fen))
 
 ## On enlève l'affichage de la souris
 pygame.mouse.set_visible(False)
-
-## Chargement des sounds effects :
-sound_jump = pygame.mixer.Sound("/game/Resources/musiques/jump.wav")
-sound_select = pygame.mixer.Sound("/game/Resources/musiques/select.wav")
-sound_validate = pygame.mixer.Sound("/game/Resources/musiques/valid.wav")
-sound_game_over = pygame.mixer.Sound("/game/Resources/musiques/gameover.wav")
 
 ## Chargement des images (Si image avec fond transparent, utiliser .convert_alpha)
 fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
@@ -67,6 +61,7 @@ img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
+
 def up_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
 def up_release():
@@ -113,7 +108,6 @@ a.when_pressed = a_press
 a.when_released = a_release
 b.when_pressed = b_press
 b.when_released = b_release
-
 
 
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
@@ -235,6 +229,13 @@ def clean_affichage(screen):
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
 class GameState():
     def __init__(self):
+        # Chargement des sounds effects :
+        self.sound_jump = pygame.mixer.Sound("./Resources/musiques/jump.wav")
+        self.sound_select = pygame.mixer.Sound("./Resources/musiques/select.wav")
+        self.sound_validate = pygame.mixer.Sound("./Resources/musiques/validate.wav")
+        self.sound_game_over = pygame.mixer.Sound("./Resources/musiques/gameover.wav")
+        self.canal_sound = pygame.mixer.Channel(2)
+        
         self.vollvl = vollvl # Gère le volume
         self.state = 'menu' # état par défaut : menu
         self.displayvolume = 0 # Variable qui dit si il faut afficher le rectangle du volume ou pas
@@ -277,14 +278,14 @@ class GameState():
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN: # Si le joueur appuie sur le bouton qui correspond à "bas" 
                 self.choix_menu = (self.choix_menu+1)%nbr_choix_menu # on change la variable qui contient le choix du menu (pour rafficher le bon menu)
-                sound_select.play()
+                self.canal_sound.play(self.sound_select)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP: # Si le joueur appuie sur le bouton qui correspond à "haut" 
                 self.choix_menu = (self.choix_menu-1)%nbr_choix_menu # Mis à jour de la variable qui stocke le choix du joueur
-                sound_select.play()
+                self.canal_sound.play(self.sound_select) 
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and self.state != 'game': # Si le joueur valide son choix via le bouton qui correspond à espace
-                sound_validate.play()
+                self.canal_sound.play(self.sound_validate)
                 pygame.event.set_blocked(None) # On bloque les entrées d'events
                 time.sleep(0.5) # Petite pause pour laisser le son de se jouer
                 if (self.choix_menu == 0):
@@ -303,6 +304,7 @@ class GameState():
                     self.vollvl = self.vollvl + 10 # Monte d'1 niveau sonore
                     vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
                     theme_canal.set_volume(vol) 
+                    self.canal_sound.set_volume(vol)
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
@@ -310,6 +312,7 @@ class GameState():
                     self.vollvl = self.vollvl - 10 # Baisse d'1 niveau sonore
                     vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
                     theme_canal.set_volume(vol)
+                    self.canal_sound.set_volume(vol)
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
 
@@ -335,7 +338,7 @@ class GameState():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and self.jump == False and self.crouch == False:
                 # Pour sauter, on vérifie que la touche espace a été pressé, qu'on n'est pas déjà en train de sauter, et qu'on est pas accroupi
                 self.jump = True
-                sound_jump.play()
+                self.canal_sound.play(self.sound_jump)
 
             if event.type == pygame.KEYUP and event.key == pygame.K_SPACE and self.jump == True and self.crouch == False:
                 # Si la touche espace est relâchée PENDANT un saut, et sans être accroupi, alors on va arrêter de monter et entamer la chute prématurement
@@ -360,6 +363,7 @@ class GameState():
                     self.vollvl = self.vollvl + 10
                     vol = float(log10(self.vollvl+1)/log10(101))
                     theme_canal.set_volume(vol)
+                    self.canal_sound.set_volume(vol)
                 self.displayvolume = 30
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
@@ -367,6 +371,7 @@ class GameState():
                     self.vollvl = self.vollvl - 10
                     vol = float(100*log10(self.vollvl+1)/log10(101))
                     theme_canal.set_volume(vol)
+                    self.canal_sound.set_volume(vol)
                 self.displayvolume = 30
 
 
@@ -550,7 +555,7 @@ class GameState():
             fenetre.blit(blob_dead, (blob.blob_x, blob.blob_y)) # affichage blob mort
             fenetre.blit(game_over_texte, (50,90)) # affichage text game over
             pygame.display.flip() # Pour afficher le text du game over
-            sound_game_over.play()
+            self.canal_sound.play(self.sound_game_over)
             time.sleep(2) # sleep de 2 secondes pour laisser le temps à la musique de se jouer
             clean_affichage(fenetre) # Affichage fond vert pour reset affichage
             pygame.display.set_caption("Menu de la ScareBot")
