@@ -19,7 +19,7 @@ gravity = 1.2*(60/fps)**2   #Force de gravité
 os.environ['SDL_VIDEODRIVER'] = 'directfb'
 os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
-os.environ['SDL_AUDIODRIVER'] = 'ALSAAUDIO'
+os.environ['SDL_AUDIODRIVER'] = 'alsa'
 
 ## Initialisation de la bibliothèque Pygame
 pygame.init()
