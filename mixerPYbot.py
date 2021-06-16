@@ -19,6 +19,7 @@ gravity = 1.2*(60/fps)**2   #Force de gravité
 os.environ['SDL_VIDEODRIVER'] = 'directfb'
 os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
+os.environ['SDL_AUDIODRIVER'] = 'alsa'
 
 ## Initialisation de la bibliothèque Pygame
 pygame.init()
@@ -235,7 +236,7 @@ class GameState():
         self.sound_select = pygame.mixer.Sound("./Resources/musiques/select.wav")
         self.sound_validate = pygame.mixer.Sound("./Resources/musiques/validate.wav")
         self.sound_game_over = pygame.mixer.Sound("./Resources/musiques/gameover.wav")
-        self.canal_sound = pygame.mixer.Channel(2)
+        self.canal_sound = pygame.mixer.find_channel()
         
         self.vollvl = vollvl # Gère le volume
         self.state = 'menu' # état par défaut : menu
