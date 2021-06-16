@@ -80,9 +80,9 @@ def a_press():
 def a_release():
     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE))
 def b_press():
-    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RETURN))
+    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
 def b_release():
-    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RETURN))
+    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_ESCAPE))
 def left_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_LEFT))
 def left_release():
@@ -93,12 +93,12 @@ def right_release():
     pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RIGHT))
 
 # 2) On affecte chaque bouton au bon pin GPIO (voir la documentation de la PI ZERO (pinout PI ZERO) : https://pi4j.com/1.2/pins/model-zerow-rev1.html
-up=Button(16, False, None, 0.075, 1, False, None)#haut
+up=Button(16, False, None, 0.075, 1, False, None)
 right=Button(26, False, None, 0.075, 1, False, None)
-down=Button(6, False, None, 0.075, 1, False, None)#bas
+down=Button(6, False, None, 0.075, 1, False, None)
 left=Button(5, False, None, 0.075, 1, False, None)
-b=Button(17, False, None, 0.075, 1, False, None)#droite
-a=Button(27, False, None, 0.075, 1, False, None)#gauche
+b=Button(27, False, None, 0.075, 1, False, None)
+a=Button(17, False, None, 0.075, 1, False, None)
 
 # 3) On affecte à chaque état du bouton (pressé ou relaché) une fonction. Celle-ci sera appelé n'importe quand via interruptions.
 up.when_pressed = up_press
