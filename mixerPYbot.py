@@ -613,8 +613,10 @@ blob = Blob() # Création d'un objet blob
 ## Boucle infinie pour faire tourner le jeu
 while continuer:
     game_state.state_manager()
+    nb_fps = font.render('FPS: {0}'.format(int(clock.get_fps())), False, (48,98,48))  # "text", antialias, color
+    fenetre.blit(nb_fps, (200, 225))
+    pygame.display.flip()
     clock.tick(fps) # Bloque le jeu à fps FPS
-    #print(clock.get_fps())
 pygame.quit()
 pygame.mixer.quit()
 sys.exit()
