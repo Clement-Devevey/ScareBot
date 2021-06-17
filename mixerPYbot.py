@@ -29,11 +29,6 @@ pygame.mixer.init()
 theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
 theme_canal=theme.play(-1) # Joue la musique principale en boucle
 theme_canal.set_volume(vol) # set the volume, from 0.0 to 1.0 where higher is louder.
-sound_jump = pygame.mixer.Sound("./Resources/musiques/jump.wav")
-sound_select = pygame.mixer.Sound("./Resources/musiques/select.wav")
-sound_validate = pygame.mixer.Sound("./Resources/musiques/validate.wav")
-sound_game_over = pygame.mixer.Sound("./Resources/musiques/gameover.wav")
-
 
 clock = pygame.time.Clock()#Permet de régler les FPS (voir ligne 606 : clock.tick(fps))
 nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
@@ -237,10 +232,10 @@ def clean_affichage(screen):
 class GameState():
     def __init__(self):
         # Chargement des sounds effects :
-        self.sound_jump = sound_jump
-        self.sound_select = sound_select
-        self.sound_validate = sound_validate
-        self.sound_game_over = sound_game_over
+        self.sound_jump = pygame.mixer.Sound("./Resources/musiques/jump.wav")
+        self.sound_select = pygame.mixer.Sound("./Resources/musiques/select.wav")
+        self.sound_validate = pygame.mixer.Sound("./Resources/musiques/validate.wav")
+        self.sound_game_over = pygame.mixer.Sound("./Resources/musiques/gameover.wav")
         self.canal_sound = pygame.mixer.find_channel()
         
         self.vollvl = vollvl # Gère le volume
