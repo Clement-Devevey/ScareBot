@@ -611,7 +611,7 @@ blob = Blob() # Création d'un objet blob
 while continuer:
     game_state.state_manager()
     nb_fps = font.render('FPS: {0}'.format(int(clock.get_fps())), False, (48,98,48))  # "text", antialias, color
-    fenetre.blit(nb_fps, (200, 225))
+    fenetre.blit(nb_fps, (200, 75))
     pygame.display.flip()
     clock.tick(fps) # Bloque le jeu à fps FPS
 pygame.quit()
