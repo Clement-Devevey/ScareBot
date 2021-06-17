@@ -232,7 +232,7 @@ def affiche_menu(choix,self):
 def clean_affichage(screen):
     """ Nettoyage de l'affichage """
     fenetre.blit(fond_vert, (0,0))
-    pygame.display.flip()
+    #pygame.display.flip()
 
 
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
