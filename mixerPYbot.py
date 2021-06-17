@@ -1,6 +1,6 @@
 ## Importation des bibliothèques nécessaires
-import pygame, sys, time, random, os
-from pygame.locals import *
+import pygame, time, random, os
+# from pygame.locals import *
 from math import ceil,log10
 #from gpiozero import LED, Button
 
