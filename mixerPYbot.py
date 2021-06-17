@@ -9,7 +9,7 @@ def_button = 0 # 0 : button don't work, 1 : button work
 ## Variables
 continuer = 1
 vollvl = 50 #Niveau initial du volume
-vol=0.8519443031609923
+vol=0.5
 fps = 60
 ## Variables globales pour la vitesse
 jspeed = -18*(60/fps)  #Vitesse de saut
@@ -325,16 +325,16 @@ class GameState():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 if self.vollvl <100 : # La variable vollvl permet d'autoriser 10 niveaux de volumes. De base il est a 0.5, et il peut monter jusqu'a 1 max
                     self.vollvl = self.vollvl + 10 # Monte d'1 niveau sonore
-                    vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
-                    theme_canal.set_volume(vol) 
+                    #vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
+                    theme_canal.set_volume((self.vollvl)/100) 
                     self.canal_sound.set_volume(vol)
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
                 if self.vollvl >0:  # La variable vollvl permet d'autoriser 10 niveaux de volumes. De base il est a 50, et il peut baisser jusqu'a 0
                     self.vollvl = self.vollvl - 10 # Baisse d'1 niveau sonore
-                    vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
-                    theme_canal.set_volume(vol)
+                    #vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
+                    theme_canal.set_volume((self.vollvl)/100) 
                     self.canal_sound.set_volume(vol)
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
@@ -384,16 +384,16 @@ class GameState():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
                 if self.vollvl <100 :
                     self.vollvl = self.vollvl + 10
-                    vol = float(log10(self.vollvl+1)/log10(101))
-                    theme_canal.set_volume(vol)
+                    #vol = float(log10(self.vollvl+1)/log10(101))
+                    theme_canal.set_volume((self.vollvl)/100) 
                     self.canal_sound.set_volume(vol)
                 self.displayvolume = 30
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
                 if self.vollvl >0:
                     self.vollvl = self.vollvl - 10
-                    vol = float(100*log10(self.vollvl+1)/log10(101))
-                    theme_canal.set_volume(vol)
+                    #vol = float(100*log10(self.vollvl+1)/log10(101))
+                    theme_canal.set_volume((self.vollvl)/100) 
                     self.canal_sound.set_volume(vol)
                 self.displayvolume = 30
 
