@@ -2,7 +2,7 @@
 import pygame, sys, time, random, os
 from pygame.locals import *
 from math import ceil,log10
-from gpiozero import LED, Button
+#from gpiozero import LED, Button
 
 ## Variables
 continuer = 1
@@ -24,14 +24,14 @@ os.environ['SDL_AUDIODRIVER'] = 'alsa'
 ## Initialisation de la bibliothèque Pygame
 pygame.init()
 pygame.mixer.init()
-
+theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
+theme_canal=theme.play(-1) # Joue la musique principale en boucle
+theme_canal.set_volume(vol) # set the volume, from 0.0 to 1.0 where higher is louder.
 sound_jump = pygame.mixer.Sound("./Resources/musiques/jump.wav")
 sound_select = pygame.mixer.Sound("./Resources/musiques/select.wav")
 sound_validate = pygame.mixer.Sound("./Resources/musiques/validate.wav")
 sound_game_over = pygame.mixer.Sound("./Resources/musiques/gameover.wav")
-theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
-theme_canal=theme.play(-1) # Joue la musique principale en boucle
-theme_canal.set_volume(vol) # set the volume, from 0.0 to 1.0 where higher is louder.
+
 
 clock = pygame.time.Clock()#Permet de régler les FPS (voir ligne 606 : clock.tick(fps))
 nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
@@ -66,7 +66,7 @@ img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
-
+"""
 def up_press():
     pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
 def up_release():
@@ -113,7 +113,7 @@ a.when_pressed = a_press
 a.when_released = a_release
 b.when_pressed = b_press
 b.when_released = b_release
-
+"""
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
