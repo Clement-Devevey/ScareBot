@@ -235,8 +235,6 @@ def clean_affichage(screen):
     pygame.display.flip()
 
 
-
-
 ## Classe pour gérer les scènes : ici, on a la scènes du menu et celle du jeu
 class GameState():
     def __init__(self):
@@ -299,7 +297,8 @@ class GameState():
             self.clean = 0 # On repasse la variable à 0
             pygame.event.clear() # On clear l'affichage en affichant le fond vert
         affiche_menu(self.choix_menu,self) # On appelle la fonction qui affiche le menu en fonction du choix du joueur
-        for event in pygame.event.get():   #On parcours la liste de tous les événements reçus
+        
+        for event in [pygame.event.wait()]+pygame.event.get():
             if event.type == QUIT:     #Si un de ces événements est de type QUIT
                 pygame.quit()
                 sys.exit()
@@ -313,6 +312,7 @@ class GameState():
                 self.canal_sound.play(self.sound_select)
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP: # Si le joueur appuie sur le bouton qui correspond à "haut" 
+
                 self.choix_menu = (self.choix_menu-1)%nbr_choix_menu # Mis à jour de la variable qui stocke le choix du joueur
                 self.canal_sound.play(self.sound_select) 
 
@@ -450,7 +450,11 @@ class GameState():
 
         # Affiche du score :
         self.score= self.score + ceil(self.speed/15) #partie entière de la vitesse/15 arrondi au supérieur
-        texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
+        #texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
+        texte = font.render('Score: {0}'.format(int(clock.get_fps())), False, (48,98,48))  # "text", antialias, color
+   # nb_fps = font.render('FPS: {0}'.format(), False, (48,98,48))  # "text", antialias, color
+   # fenetre.blit(nb_fps, (200, 75))
+   # pygame.display.flip()
         fenetre.blit(texte, (200, 10))
 
         ## Affichage nuages
@@ -590,12 +594,13 @@ class GameState():
             self.canal_sound.play(self.sound_game_over)
             time.sleep(2) # sleep de 2 secondes pour laisser le temps à la musique de se jouer
             clean_affichage(fenetre) # Affichage fond vert pour reset affichage
-            pygame.display.set_caption("Menu de la ScareBot")
+            #pygame.display.set_caption("Menu de la ScareBot")
             self.reset() # Reset de toutes les variables
             self.clean = 1 # On passe la variable à 1, qui permet d'effectuer des commandes uniquement lors de la première itération
-        pygame.display.flip() # Enfin, on affiche à l'écran.
+       
         
         all_sprite.update() # On update tout les sprite
+        pygame.display.flip() # Enfin, on affiche à l'écran.
         # Gestion collision :
         # Si accroupi on regarde la collision entre blob crouch et obstacle                             
         if(self.crouch):
@@ -619,9 +624,6 @@ blob = Blob() # Création d'un objet blob
 ## Boucle infinie pour faire tourner le jeu
 while continuer:
     game_state.state_manager()
-    nb_fps = font.render('FPS: {0}'.format(int(clock.get_fps())), False, (48,98,48))  # "text", antialias, color
-    fenetre.blit(nb_fps, (200, 75))
-    pygame.display.flip()
     clock.tick(fps) # Bloque le jeu à fps FPS
 pygame.quit()
 pygame.mixer.quit()
