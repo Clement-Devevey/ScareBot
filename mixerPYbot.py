@@ -9,7 +9,6 @@ def_button = 0 # 0 : button don't work, 1 : button work
 ## Variables
 continuer = 1
 vollvl = 50 #Niveau initial du volume
-vol=0.5
 fps = 60
 ## Variables globales pour la vitesse
 jspeed = -18*(60/fps)  #Vitesse de saut
@@ -28,7 +27,7 @@ pygame.init()
 pygame.mixer.init()
 theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
 theme_canal=theme.play(-1) # Joue la musique principale en boucle
-theme_canal.set_volume(vol) # set the volume, from 0.0 to 1.0 where higher is louder.
+theme_canal.set_volume(vollvl/100) # set the volume, from 0.0 to 1.0 where higher is louder.
 
 clock = pygame.time.Clock()#Permet de régler les FPS (voir ligne 606 : clock.tick(fps))
 nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
@@ -63,6 +62,7 @@ img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
+
 if(def_button == 1):
     def up_press():
         pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
@@ -174,6 +174,16 @@ class Obstacle(pygame.sprite.Sprite):
         elif (self.type == 2):
             self.rect.x = self.x
             self.rect.y = self.y
+            fenetre.blit(self.fantome, (self.x, self.y))
+            
+    def blit(self):
+        """ Met à jour les coordonnées du rectangle puis ajoute l'affichage de l'obstacle sur la fenêtre 
+            (/!\ tant qu'on n'a pas appelé fenetre.display(), rien ne s'affiche) """
+        if (self.type == 0):
+            fenetre.blit(self.large, (self.x, self.y))
+        elif (self.type == 1):
+            fenetre.blit(self.small, (self.x, self.y))
+        elif (self.type == 2):
             fenetre.blit(self.fantome, (self.x, self.y))
 
     def change_mask(self):
@@ -485,7 +495,7 @@ class GameState():
 
 #En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
 
-        obstacle.update()
+        #obstacle.update()
         obstacle.x = obstacle.x- self.speed #Fais bouger l'élément vers la gauche
         if(obstacle.x<-50):  #Si l'obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
             #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
@@ -544,10 +554,10 @@ class GameState():
                         self.jspeed=self.jspeed + 3*self.gravity
                         blob_crouch.x = blob.blob_x
                         blob_crouch.y = blob.blob_y+9
-                        blob_crouch.update()
+                        #blob_crouch.update()
                     else:
                         self.jspeed=self.jspeed + self.gravity
-                        blob.update()
+                        #blob.update()
 
                 if self.fall :
                     fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
@@ -558,16 +568,17 @@ class GameState():
                 if(self.crouch): # On vérifie si on veut s'accroupir
                     blob_crouch.x = blob.blob_x
                     blob_crouch.y = blob.blob_y+9 #Il faut décaler de 9x la coordonnée y du blob crouch par rapport au blob, car l'affichage se fait par le haut gauche. Comme le blob crouch est plus petit, il faut donc augmenter de 9px y.
-                    blob_crouch.update()
+                    #blob_crouch.update()
                     fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
                 else: # Sinon on reset les coordonnées du blob à ses coordonnées de base (180 et 10)
                     blob.blob_x = 10
                     blob.blob_y = 180
-                    blob.update()
+                    #blob.update()
                     fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
 
 
         else: #si le blob est mort
+            obstacle.blit()
             pygame.event.set_blocked(None) # Si on est mort, on bloque toutes les entrées d'event
             if(self.score > int(self.high_score)):
                 f_high_score = open(r"./Resources/high_score.txt", "w") # Ouverture en écriture.
@@ -584,8 +595,7 @@ class GameState():
             self.reset() # Reset de toutes les variables
             self.clean = 1 # On passe la variable à 1, qui permet d'effectuer des commandes uniquement lors de la première itération
         pygame.display.flip() # Enfin, on affiche à l'écran.
-
-
+        
         all_sprite.update() # On update tout les sprite
         # Gestion collision :
         # Si accroupi on regarde la collision entre blob crouch et obstacle                             
