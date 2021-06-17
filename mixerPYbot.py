@@ -221,7 +221,6 @@ def affiche_menu(choix,self):
 
     texte = font.render('High score: {0}'.format(self.high_score), False, (48,98,48))  # "text", antialias, color
     fenetre.blit(texte, (75, 225))
-    pygame.display.flip()
     if self.displayvolume>0 :
         # Affichage de la barre de volume
         fenetre.blit(img_volume, (49,50))
