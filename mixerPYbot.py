@@ -327,7 +327,7 @@ class GameState():
                     self.vollvl = self.vollvl + 10 # Monte d'1 niveau sonore
                     #vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
                     theme_canal.set_volume((self.vollvl)/100) 
-                    self.canal_sound.set_volume(vol)
+                    self.canal_sound.set_volume((self.vollvl)/100)
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
@@ -335,7 +335,7 @@ class GameState():
                     self.vollvl = self.vollvl - 10 # Baisse d'1 niveau sonore
                     #vol = float(log10(self.vollvl+1)/log10(101)) # Mis à jour du volume via une fontion log car le volume a une courbe exponentielle
                     theme_canal.set_volume((self.vollvl)/100) 
-                    self.canal_sound.set_volume(vol)
+                    self.canal_sound.set_volume((self.vollvl)/100)
                 self.displayvolume = 30 # Indique au programme qu'il faut afficher la barre du son
 
 
@@ -386,7 +386,7 @@ class GameState():
                     self.vollvl = self.vollvl + 10
                     #vol = float(log10(self.vollvl+1)/log10(101))
                     theme_canal.set_volume((self.vollvl)/100) 
-                    self.canal_sound.set_volume(vol)
+                    self.canal_sound.set_volume((self.vollvl)/100)
                 self.displayvolume = 30
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
@@ -394,7 +394,7 @@ class GameState():
                     self.vollvl = self.vollvl - 10
                     #vol = float(100*log10(self.vollvl+1)/log10(101))
                     theme_canal.set_volume((self.vollvl)/100) 
-                    self.canal_sound.set_volume(vol)
+                    self.canal_sound.set_volume((self.vollvl)/100)
                 self.displayvolume = 30
 
 
