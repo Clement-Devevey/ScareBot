@@ -2,8 +2,10 @@
 import pygame, time, random, os, sys
 from pygame.locals import *
 from math import ceil,log10
-#from gpiozero import LED, Button
+from gpiozero import LED, Button
 
+## DEFINE
+def_button = 0 # 0 : button don't work, 1 : button work
 ## Variables
 continuer = 1
 vollvl = 50 #Niveau initial du volume
@@ -66,54 +68,54 @@ img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
-"""
-def up_press():
-    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
-def up_release():
-    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_UP))
-def down_press():
-    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
-def down_release():
-    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_DOWN))
-def a_press():
-    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
-def a_release():
-    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE))
-def b_press():
-    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
-def b_release():
-    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_ESCAPE))
-def left_press():
-    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_LEFT))
-def left_release():
-    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_LEFT))
-def right_press():
-    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
-def right_release():
-    pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RIGHT))
+if(def_button == 1):
+    def up_press():
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
+    def up_release():
+        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_UP))
+    def down_press():
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
+    def down_release():
+        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_DOWN))
+    def a_press():
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
+    def a_release():
+        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE))
+    def b_press():
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
+    def b_release():
+        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_ESCAPE))
+    def left_press():
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_LEFT))
+    def left_release():
+        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_LEFT))
+    def right_press():
+        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
+    def right_release():
+        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RIGHT))
 
-# 2) On affecte chaque bouton au bon pin GPIO (voir la documentation de la PI ZERO (pinout PI ZERO) : https://pi4j.com/1.2/pins/model-zerow-rev1.html
-up=Button(16, False, None, 0.075, 1, False, None)
-right=Button(26, False, None, 0.075, 1, False, None)
-down=Button(6, False, None, 0.075, 1, False, None)
-left=Button(5, False, None, 0.075, 1, False, None)
-b=Button(27, False, None, 0.075, 1, False, None)
-a=Button(17, False, None, 0.075, 1, False, None)
+    # 2) On affecte chaque bouton au bon pin GPIO (voir la documentation de la PI ZERO (pinout PI ZERO) : https://pi4j.com/1.2/pins/model-zerow-rev1.html
+    up=Button(16, False, None, 0.075, 1, False, None)
+    right=Button(26, False, None, 0.075, 1, False, None)
+    down=Button(6, False, None, 0.075, 1, False, None)
+    left=Button(5, False, None, 0.075, 1, False, None)
+    b=Button(27, False, None, 0.075, 1, False, None)
+    a=Button(17, False, None, 0.075, 1, False, None)
 
-# 3) On affecte à chaque état du bouton (pressé ou relaché) une fonction. Celle-ci sera appelé n'importe quand via interruptions.
-up.when_pressed = up_press
-up.when_released = up_release
-right.when_pressed = right_press
-right.when_released = right_release
-down.when_pressed = down_press
-down.when_released = down_release
-left.when_pressed = left_press
-left.when_released = left_release
-a.when_pressed = a_press
-a.when_released = a_release
-b.when_pressed = b_press
-b.when_released = b_release
-"""
+    # 3) On affecte à chaque état du bouton (pressé ou relaché) une fonction. Celle-ci sera appelé n'importe quand via interruptions.
+    up.when_pressed = up_press
+    up.when_released = up_release
+    right.when_pressed = right_press
+    right.when_released = right_release
+    down.when_pressed = down_press
+    down.when_released = down_release
+    left.when_pressed = left_press
+    left.when_released = left_release
+    a.when_pressed = a_press
+    a.when_released = a_release
+    b.when_pressed = b_press
+    b.when_released = b_release
+
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
