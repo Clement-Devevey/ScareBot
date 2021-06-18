@@ -2,7 +2,7 @@
 import pygame, time, random, os, sys
 from pygame.locals import *
 from math import ceil,log10
-from gpiozero import LED, Button
+#from gpiozero import LED, Button
 
 ## DEFINE
 def_button = 0 # 0 : button don't work, 1 : button work
@@ -12,9 +12,9 @@ vollvl = 50 #Niveau initial du volume
 fps = 60
 ## Variables globales pour la vitesse
 jspeed = -18*(60/fps)  #Vitesse de saut
-start_speed = 10*(60/fps) #Vitesse de défilement de départ
+start_speed = 9*(60/fps) #Vitesse de défilement de départ
 acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
-gravity = 1.2*(60/fps)**2   #Force de gravité
+gravity = 1.3*(60/fps)**2   #Force de gravité
 
 # Configuration drivers
 os.environ['SDL_VIDEODRIVER'] = 'directfb'
@@ -166,15 +166,15 @@ class Obstacle(pygame.sprite.Sprite):
         if (self.type == 0):
             self.rect.x = self.x
             self.rect.y = self.y
-            fenetre.blit(self.large, (self.x, self.y))
+            #fenetre.blit(self.large, (self.x, self.y))
         elif (self.type == 1):
             self.rect.x = self.x
             self.rect.y = self.y
-            fenetre.blit(self.small, (self.x, self.y))
+            #fenetre.blit(self.small, (self.x, self.y))
         elif (self.type == 2):
             self.rect.x = self.x
             self.rect.y = self.y
-            fenetre.blit(self.fantome, (self.x, self.y))
+            #fenetre.blit(self.fantome, (self.x, self.y))
             
     def blit(self):
         """ Met à jour les coordonnées du rectangle puis ajoute l'affichage de l'obstacle sur la fenêtre 
@@ -288,7 +288,7 @@ class GameState():
         f_high_score = open(r"./Resources/high_score.txt", "r") # Ouverture en lecture.
         self.high_score = f_high_score.readline()
         f_high_score.close()
-
+        
     def menu(self):
         """ Gesion du menu (affichage et evènements) """
         if (self.clean == 1):
@@ -445,37 +445,46 @@ class GameState():
 
 
     def Affiche_scene_jeu(self):
-        # On reset l'affichage avec l'affichage du fond vert
+        
+        ## Reset affichage avec l'affichage du fond vert
+        
         fenetre.blit(fond_vert, (0,0))
 
-        # Affiche du score :
+
+        ## Affiche du score :
+        
         self.score= self.score + ceil(self.speed/15) #partie entière de la vitesse/15 arrondi au supérieur
-        #texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
-        texte = font.render('Score: {0}'.format(int(clock.get_fps())), False, (48,98,48))  # "text", antialias, color
-   # nb_fps = font.render('FPS: {0}'.format(), False, (48,98,48))  # "text", antialias, color
-   # fenetre.blit(nb_fps, (200, 75))
-   # pygame.display.flip()
-        fenetre.blit(texte, (200, 10))
+
+        # On utilise un rectangle pour afficher le texte à l'intérieur et aligner à droite ce rectangle. On place ce rectangle au bon en endroit et le trick est joué.
+        texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
+        text_rect = texte.get_rect()
+        text_rect.right = 320 # align to right to 320px
+        text_rect.y = 10 # Décale le rectangle de 10 px du haut de la fenêtre
+        fenetre.blit(texte, text_rect)
+
 
         ## Affichage nuages
-        # On affichage les nuages en fonction de leur type (cloud1 2 ou 3)
+        
         for i in range (len(self.tab_pos_nuage)) :
-            if(self.tab_type_nuage[i] == 1):
-                fenetre.blit(cloud1, self.tab_pos_nuage[i])
-            elif(self.tab_type_nuage[i]==2):
-                fenetre.blit(cloud2, self.tab_pos_nuage[i])
-            elif(self.tab_type_nuage[i] == 3):
-                fenetre.blit(cloud3, self.tab_pos_nuage[i])
 
-            if(self.tab_pos_nuage[i][0]<=-141):  #Si un nuage est en dehors de la zone de l'écran, on le réaffiche tout à droite
-                # Coordonné X : On doit les faire spawn en dehors de l'écran.
+            #Check si un nuage est en dehors de la zone de l'écran. Si c'est le cas, on le réaffiche tout à droite
+            if(self.tab_pos_nuage[i][0]<=-141):  
+                # Coordonné X : On doit les faire spawn tout à droite en dehors de l'écran
                 self.tab_pos_nuage[i][0] = random.randrange(x_fen, 2*x_fen, 20)
                 # Coordonnée Y :
                 self.tab_pos_nuage[i][1] = random.randrange(24, 178, 11)
                 # On doit checker qu'il ne spawn pas sur un autre nuage :
                 self.ynuage(i)  #Vérifie la coordonnée Y pour ne pas faire spawn le nuage aux même coordonnées y d'un autre nuage et risquer une superposition
                 self.tab_type_nuage[i] = random.randrange(1, 4, 1)  #Nuage aléatoire (cloud1 2 ou 3)
-
+                
+            # On affichage les nuages en fonction de leur type (cloud1 2 ou 3)
+            if(self.tab_type_nuage[i] == 1):
+                fenetre.blit(cloud1, self.tab_pos_nuage[i])
+            elif(self.tab_type_nuage[i]==2):
+                fenetre.blit(cloud2, self.tab_pos_nuage[i])
+            elif(self.tab_type_nuage[i] == 3):
+                fenetre.blit(cloud3, self.tab_pos_nuage[i])
+                
             # Vitesse en fonction de sa coordonnée y :
             # Permet d'avoir un effet de profondeur
             if(self.tab_pos_nuage[i][1] < 76):
@@ -487,7 +496,9 @@ class GameState():
             elif(self.tab_pos_nuage[i][1] >= 127):
                 self.tab_pos_nuage[i][0] = self.tab_pos_nuage[i][0]-int(0.4*self.speed)
 
-        # Affichage du rectangle pour le volume si l'utilisateur l'a changé :
+
+        ## Affichage du rectangle pour le volume si l'utilisateur l'a changé :
+        
         if self.displayvolume>0 :
             fenetre.blit (img_volume, (49,50))
             pygame.draw.rect(fenetre, [15, 56, 15], [63, 52, 1.92*self.vollvl, 10], 0)
@@ -496,24 +507,26 @@ class GameState():
 
         ## affichage obstacles et fantome
 
-#En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
-
-        #obstacle.update()
-        obstacle.x = obstacle.x- self.speed #Fais bouger l'élément vers la gauche
-        if(obstacle.x<-50):  #Si l'obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
-            #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
-            obstacle.x = random.randrange(x_fen+50, 3*x_fen, 5)
-         
-      # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
-            obstacle.type = random.randrange(0, 3, 1)  #obstacle aléatoire
-            if(obstacle.type == 2): # Fantome = modificiation coordonnée y
-                obstacle.y = random.randrange(130, 136, 2)
-                #self.obstacle = Fantome()
-            elif(obstacle.type == 1 or obstacle.type == 0):
-                obstacle.y  = 197
-                #self.obstacle = Large_object()
-            obstacle.change_mask(); #Update du mask car on a changé d'obstacle
-
+        # Blit après l'update des coordonnées
+        # Il faut vérifier qu'on est en vie pour ne pas afficher l'obstacle une frame de + que lors du moment de collision
+        if(self.alive):
+    #En fonction du numéro stocké dans le taleau type obstacle on sait lequel afficher
+            obstacle.x = obstacle.x- self.speed #Fais bouger l'élément vers la gauche
+            if(obstacle.x<-50):  #Si l'obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
+                #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
+                obstacle.x = random.randrange(x_fen+50, 3*x_fen, 5)
+            
+        # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
+                obstacle.type = random.randrange(0, 3, 1)  #obstacle aléatoire
+                if(obstacle.type == 2): # Fantome = modificiation coordonnée y
+                    obstacle.y = random.randrange(130, 136, 2)
+                    #self.obstacle = Fantome()
+                elif(obstacle.type == 1 or obstacle.type == 0):
+                    obstacle.y  = 197
+                    #self.obstacle = Large_object()
+                obstacle.change_mask(); #Update du mask car on a changé d'obstacle
+                
+        obstacle.blit()
 
         ## affichage du sol
 
@@ -539,7 +552,6 @@ class GameState():
 
             if(self.jump): # On vérifie si on saute :
                 blob.blob_y= blob.blob_y + self.jspeed
-                #print(blob.blob_y)
 
                 if(blob.blob_y>180):
                     blob.blob_y=180
@@ -558,10 +570,8 @@ class GameState():
                         self.jspeed=self.jspeed + 3*self.gravity
                         blob_crouch.x = blob.blob_x
                         blob_crouch.y = blob.blob_y+9
-                        #blob_crouch.update()
                     else:
                         self.jspeed=self.jspeed + self.gravity
-                        #blob.update()
 
                 if self.fall :
                     fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
@@ -572,17 +582,16 @@ class GameState():
                 if(self.crouch): # On vérifie si on veut s'accroupir
                     blob_crouch.x = blob.blob_x
                     blob_crouch.y = blob.blob_y+9 #Il faut décaler de 9x la coordonnée y du blob crouch par rapport au blob, car l'affichage se fait par le haut gauche. Comme le blob crouch est plus petit, il faut donc augmenter de 9px y.
-                    #blob_crouch.update()
                     fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
+                    
                 else: # Sinon on reset les coordonnées du blob à ses coordonnées de base (180 et 10)
                     blob.blob_x = 10
                     blob.blob_y = 180
-                    #blob.update()
                     fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
 
 
         else: #si le blob est mort
-            obstacle.blit()
+            #obstacle.blit()
             pygame.event.set_blocked(None) # Si on est mort, on bloque toutes les entrées d'event
             if(self.score > int(self.high_score)):
                 f_high_score = open(r"./Resources/high_score.txt", "w") # Ouverture en écriture.
@@ -600,9 +609,10 @@ class GameState():
             self.clean = 1 # On passe la variable à 1, qui permet d'effectuer des commandes uniquement lors de la première itération
        
         
-        all_sprite.update() # On update tout les sprite
+        all_sprite.update() # On update les coordonnées de chaque sprite pour les collisions
         pygame.display.flip() # Enfin, on affiche à l'écran.
-        # Gestion collision :
+        
+        ## Gestion collision :
         # Si accroupi on regarde la collision entre blob crouch et obstacle                             
         if(self.crouch):
             if(pygame.sprite.collide_mask(blob_crouch, obstacle)):
@@ -611,7 +621,8 @@ class GameState():
         else:
             if(pygame.sprite.collide_mask(blob, obstacle)):
                 self.alive = False
-## Fin de la classe GameState
+                
+ ## Fin de la classe GameState
 
 
 
@@ -622,9 +633,12 @@ all_sprite = pygame.sprite.Group()
 obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
-## Boucle infinie pour faire tourner le jeu
+
 os.system('sh /etc/init.d/S03gif stop')
+
 pygame.display.init()
+## Boucle infinie pour faire tourner le jeu
+
 ## On enlève l'affichage de la souris
 pygame.mouse.set_visible(False)
 while continuer:
