@@ -455,7 +455,7 @@ class GameState():
    # nb_fps = font.render('FPS: {0}'.format(), False, (48,98,48))  # "text", antialias, color
    # fenetre.blit(nb_fps, (200, 75))
    # pygame.display.flip()
-        fenetre.blit(texte, (200, 30))
+        fenetre.blit(texte, (200, 10))
 
         ## Affichage nuages
         # On affichage les nuages en fonction de leur type (cloud1 2 ou 3)
