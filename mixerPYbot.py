@@ -2,7 +2,7 @@
 import pygame, time, random, os, sys
 from pygame.locals import *
 from math import ceil,log10
-from gpiozero import LED, Button
+#from gpiozero import LED, Button
 
 ## DEFINE
 def_button = 0 # 0 : button don't work, 1 : button work
@@ -15,13 +15,13 @@ jspeed = -18*(60/fps)  #Vitesse de saut
 start_speed = 9*(60/fps) #Vitesse de défilement de départ
 acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
 gravity = 1.3*(60/fps)**2   #Force de gravité
-
+"""
 # Configuration drivers
 os.environ['SDL_VIDEODRIVER'] = 'directfb'
 os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
 os.environ['SDL_AUDIODRIVER'] = 'alsa'
-
+"""
 ## Initialisation de la bibliothèque Pygame
 
 pygame.font.init()
@@ -38,7 +38,7 @@ nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
 x_fen = 320
 y_fen = 240
 
-## Chargement des images (Si image avec fond transparent, utiliser .convert_alpha)
+## Chargement des images 
 fond_vert = pygame.image.load("./Resources/images/fond_vert.png")
 menu_fond = pygame.image.load("./Resources/images/menu.png")
 curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png")
@@ -59,7 +59,7 @@ img_volume = pygame.image.load("./Resources/images/volume.png")
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
-
+"""
 if(def_button == 1):
     def up_press():
         pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
@@ -107,7 +107,7 @@ if(def_button == 1):
     a.when_released = a_release
     b.when_pressed = b_press
     b.when_released = b_release
-
+"""
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
@@ -630,14 +630,16 @@ all_sprite = pygame.sprite.Group()
 obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
-
+"""
 os.system('sh /etc/init.d/S03gif stop')
-
+"""
 pygame.display.init()
-## Boucle infinie pour faire tourner le jeu
 fenetre = pygame.display.set_mode((x_fen,y_fen))
-## On enlève l'affichage de la souris
+# On enlève l'affichage de la souris
 pygame.mouse.set_visible(False)
+## Boucle infinie pour faire tourner le jeu
+
+
 while continuer:
     game_state.state_manager()
     clock.tick(fps) # Bloque le jeu à fps FPS
