@@ -2,7 +2,7 @@
 import pygame, time, random, os, sys
 from pygame.locals import *
 from math import ceil,log10
-#from gpiozero import LED, Button
+from gpiozero import LED, Button
 
 ## DEFINE
 def_button = 0 # 0 : button don't work, 1 : button work
@@ -15,13 +15,13 @@ jspeed = -18*(60/fps)  #Vitesse de saut
 start_speed = 9*(60/fps) #Vitesse de défilement de départ
 acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
 gravity = 1.3*(60/fps)**2   #Force de gravité
-"""
+
 # Configuration drivers
 os.environ['SDL_VIDEODRIVER'] = 'directfb'
 os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
 os.environ['SDL_AUDIODRIVER'] = 'alsa'
-"""
+
 ## Initialisation de la bibliothèque Pygame
 
 pygame.font.init()
@@ -59,7 +59,7 @@ img_volume = pygame.image.load("./Resources/images/volume.png")
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
-"""
+
 if(def_button == 1):
     def up_press():
         pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
@@ -107,7 +107,7 @@ if(def_button == 1):
     a.when_released = a_release
     b.when_pressed = b_press
     b.when_released = b_release
-"""
+
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
@@ -585,6 +585,20 @@ class GameState():
                     blob.blob_x = 10
                     blob.blob_y = 180
                     fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
+                    
+        
+            all_sprite.update() # On update les coordonnées de chaque sprite pour les collisions
+            pygame.display.flip() # Enfin, on affiche à l'écran.
+            
+            ## Gestion collision :
+            # Si accroupi on regarde la collision entre blob crouch et obstacle                             
+            if(self.crouch):
+                if(pygame.sprite.collide_mask(blob_crouch, obstacle)):
+                    self.alive = False
+            # Sinon entre blob et obstacle
+            else:
+                if(pygame.sprite.collide_mask(blob, obstacle)):
+                    self.alive = False
 
 
         else: #si le blob est mort
@@ -605,19 +619,7 @@ class GameState():
             self.reset() # Reset de toutes les variables
             self.clean = 1 # On passe la variable à 1, qui permet d'effectuer des commandes uniquement lors de la première itération
        
-        
-        all_sprite.update() # On update les coordonnées de chaque sprite pour les collisions
-        pygame.display.flip() # Enfin, on affiche à l'écran.
-        
-        ## Gestion collision :
-        # Si accroupi on regarde la collision entre blob crouch et obstacle                             
-        if(self.crouch):
-            if(pygame.sprite.collide_mask(blob_crouch, obstacle)):
-                self.alive = False
-        # Sinon entre blob et obstacle
-        else:
-            if(pygame.sprite.collide_mask(blob, obstacle)):
-                self.alive = False
+
                 
  ## Fin de la classe GameState
 
@@ -630,9 +632,9 @@ all_sprite = pygame.sprite.Group()
 obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
-"""
+
 os.system('sh /etc/init.d/S03gif stop')
-"""
+
 pygame.display.init()
 fenetre = pygame.display.set_mode((x_fen,y_fen))
 # On enlève l'affichage de la souris
