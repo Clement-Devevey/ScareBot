@@ -37,14 +37,11 @@ nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
 ## Création de la fenêtre (en pixels)
 x_fen = 320
 y_fen = 240
-fenetre = pygame.display.set_mode((x_fen,y_fen))
-
-
 
 ## Chargement des images (Si image avec fond transparent, utiliser .convert_alpha)
-fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
+fond_vert = pygame.image.load("./Resources/images/fond_vert.png")
 menu_fond = pygame.image.load("./Resources/images/menu.png")
-curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png").convert_alpha()
+curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png")
 sol1 = pygame.image.load("./Resources/images/sol 1.png")
 sol2 = pygame.image.load("./Resources/images/sol 2.png")
 sol3 = pygame.image.load("./Resources/images/sol 3.png")
@@ -638,7 +635,7 @@ os.system('sh /etc/init.d/S03gif stop')
 
 pygame.display.init()
 ## Boucle infinie pour faire tourner le jeu
-
+fenetre = pygame.display.set_mode((x_fen,y_fen))
 ## On enlève l'affichage de la souris
 pygame.mouse.set_visible(False)
 while continuer:
