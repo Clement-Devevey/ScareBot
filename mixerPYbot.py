@@ -23,7 +23,8 @@ os.environ["SDL_NOMOUSE"] = "1"
 os.environ['SDL_AUDIODRIVER'] = 'alsa'
 
 ## Initialisation de la bibliothèque Pygame
-pygame.init()
+
+pygame.font.init()
 pygame.mixer.init()
 theme = pygame.mixer.Sound("./Resources/musiques/8bit.wav")
 theme_canal=theme.play(-1) # Joue la musique principale en boucle
@@ -36,25 +37,23 @@ nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
 ## Création de la fenêtre (en pixels)
 x_fen = 320
 y_fen = 240
-fenetre = pygame.display.set_mode((x_fen,y_fen))
 
-## On enlève l'affichage de la souris
-pygame.mouse.set_visible(False)
+
 
 ## Chargement des images (Si image avec fond transparent, utiliser .convert_alpha)
-fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
-menu_fond = pygame.image.load("./Resources/images/menu.png").convert_alpha()
-curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png").convert_alpha()
-sol1 = pygame.image.load("./Resources/images/sol 1.png").convert_alpha()
-sol2 = pygame.image.load("./Resources/images/sol 2.png").convert_alpha()
-sol3 = pygame.image.load("./Resources/images/sol 3.png").convert_alpha()
-sol4 = pygame.image.load("./Resources/images/sol 4.png").convert_alpha()
-blob_dead = pygame.image.load("./Resources/images/blob dead.png").convert_alpha()
-game_over_texte = pygame.image.load("./Resources/images/game over gameboy.png").convert_alpha()
-cloud1 = pygame.image.load("./Resources/images/cloud 1.png").convert_alpha()
-cloud2 = pygame.image.load("./Resources/images/cloud 2.png").convert_alpha()
-cloud3 = pygame.image.load("./Resources/images/cloud 3.png").convert_alpha()
-img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
+fond_vert = pygame.image.load("./Resources/images/fond_vert.png")
+menu_fond = pygame.image.load("./Resources/images/menu.png")
+curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png")
+sol1 = pygame.image.load("./Resources/images/sol 1.png")
+sol2 = pygame.image.load("./Resources/images/sol 2.png")
+sol3 = pygame.image.load("./Resources/images/sol 3.png")
+sol4 = pygame.image.load("./Resources/images/sol 4.png")
+blob_dead = pygame.image.load("./Resources/images/blob dead.png")
+game_over_texte = pygame.image.load("./Resources/images/game over gameboy.png")
+cloud1 = pygame.image.load("./Resources/images/cloud 1.png")
+cloud2 = pygame.image.load("./Resources/images/cloud 2.png")
+cloud3 = pygame.image.load("./Resources/images/cloud 3.png")
+img_volume = pygame.image.load("./Resources/images/volume.png")
 
 
 ## Initialisation des Boutons et pins
@@ -114,7 +113,7 @@ if(def_button == 1):
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
-        self.image = pygame.image.load("./Resources/images/blob_base.png").convert_alpha() # Image du blob
+        self.image = pygame.image.load("./Resources/images/blob_base.png") # Image du blob
         self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
         self.rect = self.image.get_rect()
         self.blob_x = 10 # Coordonnée x par défaut du blob
@@ -131,7 +130,7 @@ class Blob(pygame.sprite.Sprite): # Classe du blob "debout"
 class Blob_crouch(pygame.sprite.Sprite): # Classe du blob "accroupi" 
     def __init__(self):
         super().__init__(all_sprite)  # Associe le sprite au groupe all_sprite
-        self.image = pygame.image.load("./Resources/images/blob crouch.png").convert_alpha() # Image du blob accroupi
+        self.image = pygame.image.load("./Resources/images/blob crouch.png") # Image du blob accroupi
         self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
         self.rect = self.image.get_rect() # Création du rectangle pour les collisions
         self.x = 0  #Initialisation de sa coordonnée x
@@ -146,11 +145,11 @@ class Blob_crouch(pygame.sprite.Sprite): # Classe du blob "accroupi"
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
-        self.large = pygame.image.load("./Resources/images/large object.png").convert_alpha() #Chargement image large object
+        self.large = pygame.image.load("./Resources/images/large object.png") #Chargement image large object
         self.mask_large = pygame.mask.from_surface(self.large)
-        self.small = pygame.image.load("./Resources/images/small object.png").convert_alpha()  #Chargement image small object
+        self.small = pygame.image.load("./Resources/images/small object.png")  #Chargement image small object
         self.mask_small = pygame.mask.from_surface(self.small)
-        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha() #Chargement image fantome
+        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png") #Chargement image fantome
         self.mask_fantome = pygame.mask.from_surface(self.fantome)
         self.mask = pygame.mask.from_surface(self.small) # initialisation à un petit obstacle
         self.rect =  self.small.get_rect() # Création du rectangle pour les collisions
@@ -621,6 +620,10 @@ all_sprite = pygame.sprite.Group()
 obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
+pygame.display.init()
+## On enlève l'affichage de la souris
+pygame.mouse.set_visible(False)
+fenetre = pygame.display.set_mode((x_fen,y_fen))
 ## Boucle infinie pour faire tourner le jeu
 while continuer:
     game_state.state_manager()
