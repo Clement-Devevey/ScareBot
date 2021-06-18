@@ -37,13 +37,14 @@ nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
 ## Création de la fenêtre (en pixels)
 x_fen = 320
 y_fen = 240
+fenetre = pygame.display.set_mode((x_fen,y_fen))
 
 
 
 ## Chargement des images (Si image avec fond transparent, utiliser .convert_alpha)
-fond_vert = pygame.image.load("./Resources/images/fond_vert.png")
+fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
 menu_fond = pygame.image.load("./Resources/images/menu.png")
-curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png")
+curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png").convert_alpha()
 sol1 = pygame.image.load("./Resources/images/sol 1.png")
 sol2 = pygame.image.load("./Resources/images/sol 2.png")
 sol3 = pygame.image.load("./Resources/images/sol 3.png")
@@ -454,7 +455,7 @@ class GameState():
    # nb_fps = font.render('FPS: {0}'.format(), False, (48,98,48))  # "text", antialias, color
    # fenetre.blit(nb_fps, (200, 75))
    # pygame.display.flip()
-        fenetre.blit(texte, (200, 10))
+        fenetre.blit(texte, (200, 30))
 
         ## Affichage nuages
         # On affichage les nuages en fonction de leur type (cloud1 2 ou 3)
@@ -502,7 +503,8 @@ class GameState():
         if(obstacle.x<-50):  #Si l'obstacle est en dehors de la zone de l'écran, on en raffiche un à droite
             #Permet de rafficher l'obstacle à une distance parfaite pour avoir des obstacles espacés d'une distance minimale de la taille X de le fenêtre
             obstacle.x = random.randrange(x_fen+50, 3*x_fen, 5)
-            # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
+         
+      # On choisit un type d'obstacle aléatoire. Comme l'obstacle fantome n'a pas la même hauteur que les murs, on adapate les coordonnées.
             obstacle.type = random.randrange(0, 3, 1)  #obstacle aléatoire
             if(obstacle.type == 2): # Fantome = modificiation coordonnée y
                 obstacle.y = random.randrange(130, 136, 2)
@@ -620,11 +622,11 @@ all_sprite = pygame.sprite.Group()
 obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
+## Boucle infinie pour faire tourner le jeu
+os.system('sh /etc/init.d/S03gif stop')
 pygame.display.init()
 ## On enlève l'affichage de la souris
 pygame.mouse.set_visible(False)
-fenetre = pygame.display.set_mode((x_fen,y_fen))
-## Boucle infinie pour faire tourner le jeu
 while continuer:
     game_state.state_manager()
     clock.tick(fps) # Bloque le jeu à fps FPS
