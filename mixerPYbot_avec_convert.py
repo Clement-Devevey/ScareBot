@@ -15,13 +15,13 @@ jspeed = -18*(60/fps)  #Vitesse de saut
 start_speed = 10*(60/fps) #Vitesse de défilement de départ
 acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
 gravity = 1.2*(60/fps)**2   #Force de gravité
-"""
+
 # Configuration drivers
 #os.environ['SDL_VIDEODRIVER'] = 'directfb'
 #os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
 os.environ['SDL_AUDIODRIVER'] = 'alsa'
-"""
+
 ## Initialisation de la bibliothèque Pygame
 
 pygame.font.init()
@@ -64,7 +64,7 @@ img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 # Le principe est le suivant : 
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
-"""
+
 if(def_button == 1):
     def up_press():
         pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
@@ -112,7 +112,7 @@ if(def_button == 1):
     a.when_released = a_release
     b.when_pressed = b_press
     b.when_released = b_release
-"""
+
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
