@@ -545,7 +545,7 @@ class GameState():
 
         ## Affichage du blob (jump)
 
-       if (self.alive): # Si on est en vie
+        if (self.alive): # Si on est en vie
 
             if(self.jump): # On vérifie si on saute :
                 blob.blob_y= blob.blob_y + self.jspeed
