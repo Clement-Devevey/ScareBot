@@ -637,7 +637,7 @@ obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
 
-os.system('sh /etc/init.d/S03gif stop')
+os.system('sh /etc/init.d/S00gif stop')
 
 pygame.display.init()
 fenetre = pygame.display.set_mode((x_fen,y_fen))
