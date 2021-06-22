@@ -545,10 +545,11 @@ class GameState():
 
         ## Affichage du blob (jump)
 
-        if (self.alive): # Si on est en vie
+       if (self.alive): # Si on est en vie
 
             if(self.jump): # On vérifie si on saute :
                 blob.blob_y= blob.blob_y + self.jspeed
+                #print(blob.blob_y)
 
                 if(blob.blob_y>180):
                     blob.blob_y=180
@@ -560,15 +561,16 @@ class GameState():
                 else :
 
                     if(self.stopjump and self.jspeed < 0):
-                        self.jspeed= int(jspeed/4)
-                        self.stopjump = False
+                        self.jspeed=self.jspeed + 3*self.gravity
                     
-                    if self.fall:
+                    elif self.fall:
                         self.jspeed=self.jspeed + 3*self.gravity
                         blob_crouch.x = blob.blob_x
                         blob_crouch.y = blob.blob_y+9
+                        #blob_crouch.update()
                     else:
                         self.jspeed=self.jspeed + self.gravity
+                        #blob.update()
 
                 if self.fall :
                     fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
@@ -579,12 +581,14 @@ class GameState():
                 if(self.crouch): # On vérifie si on veut s'accroupir
                     blob_crouch.x = blob.blob_x
                     blob_crouch.y = blob.blob_y+9 #Il faut décaler de 9x la coordonnée y du blob crouch par rapport au blob, car l'affichage se fait par le haut gauche. Comme le blob crouch est plus petit, il faut donc augmenter de 9px y.
+                    #blob_crouch.update()
                     fenetre.blit(blob_crouch.image, (blob_crouch.x, blob_crouch.y))
-                    
                 else: # Sinon on reset les coordonnées du blob à ses coordonnées de base (180 et 10)
                     blob.blob_x = 10
                     blob.blob_y = 180
+                    #blob.update()
                     fenetre.blit(blob.image, (blob.blob_x, blob.blob_y))
+
                     
         
             all_sprite.update() # On update les coordonnées de chaque sprite pour les collisions
