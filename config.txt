@@ -1,0 +1,50 @@
+# Please note that this is only a sample, we recommend you to change it to fit
+# your needs.
+# You should override this file using a post-build script.
+# See http://buildroot.org/manual.html#rootfs-custom
+# and http://elinux.org/RPiconfig for a description of config.txt syntax
+
+# We always use the same names, the real used variant is selected by
+# BR2_PACKAGE_RPI_FIRMWARE_{DEFAULT,X,CD} choice
+start_file=start.elf
+fixup_file=fixup.dat
+
+kernel=zImage
+
+# To use an external initramfs file
+#initramfs rootfs.cpio.gz
+
+# Disable overscan assuming the display supports displaying the full resolution
+# If the text shown on the screen disappears off the edge, comment this out
+disable_overscan=1
+
+# How much memory in MB to assign to the GPU on Pi models having
+# 256, 512 or 1024 MB total memory
+gpu_mem_256=64
+gpu_mem_512=64
+gpu_mem_1024=64
+
+disable_splash=1
+#force_turbo=1
+boot_delay=0
+#display_rotate=2
+dtoverlay=sdtweak,overclock_50=100
+force_turbo=1
+#core_freq=250
+
+dtoverlay=gpio-key,gpio=27,gpio_pull=1,keycode=57,label="a",active_low=0
+dtoverlay=gpio-key,gpio=17,gpio_pull=1,keycode=1,label="b",active_low=0
+dtoverlay=gpio-key,gpio=16,gpio_pull=1,keycode=103,label="up",active_low=0
+dtoverlay=gpio-key,gpio=6,gpio_pull=1,keycode=108,label="down",active_low=0
+dtoverlay=gpio-key,gpio=26,gpio_pull=1,keycode=106,label="right",active_low=0
+dtoverlay=gpio-key,gpio=5,gpio_pull=1,keycode=105,label="left",active_low=0
+
+dtparam=audio=on
+dtoverlay=audremap,enable_jack=on
+dtoverlay=max98357a
+dtoverlay=disable_hdmi_audio
+
+hdmi_group=2
+hdmi_mode=87
+hdmi_cvt=320 240 60 1 0 0 0
+hdmi_force_hotplug=1
