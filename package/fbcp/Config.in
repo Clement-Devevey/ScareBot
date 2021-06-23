@@ -1,4 +1,8 @@
 config BR2_PACKAGE_FBCP
-        bool "fbcp SPI Driver for ILI9341 LCD display"
+        bool "fbcp ILI9341"
+	depends on BR2_PACKAGE_RPI_USERLAND
         help
-          FBCP
+          fbcp SPI Driver for ILI9341 LCD display
+	  A fast driver for ili9341 display
+	  
+	  https://github.com/juj/fbcp-ili9341
