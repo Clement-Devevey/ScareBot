@@ -1,0 +1,4 @@
+config BR2_PACKAGE_FBCP
+        bool "fbcp SPI Driver for ILI9341 LCD display"
+        help
+          FBCP
