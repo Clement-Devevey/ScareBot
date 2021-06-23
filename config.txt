@@ -32,8 +32,8 @@ dtoverlay=sdtweak,overclock_50=100
 force_turbo=1
 #core_freq=250
 
-dtoverlay=gpio-key,gpio=27,gpio_pull=1,keycode=57,label="a",active_low=0
-dtoverlay=gpio-key,gpio=17,gpio_pull=1,keycode=1,label="b",active_low=0
+dtoverlay=gpio-key,gpio=17,gpio_pull=1,keycode=57,label="a",active_low=0
+dtoverlay=gpio-key,gpio=27,gpio_pull=1,keycode=1,label="b",active_low=0
 dtoverlay=gpio-key,gpio=16,gpio_pull=1,keycode=103,label="up",active_low=0
 dtoverlay=gpio-key,gpio=6,gpio_pull=1,keycode=108,label="down",active_low=0
 dtoverlay=gpio-key,gpio=26,gpio_pull=1,keycode=106,label="right",active_low=0
