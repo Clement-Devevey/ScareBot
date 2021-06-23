@@ -2,22 +2,19 @@
 import pygame, time, random, os, sys
 from pygame.locals import *
 from math import ceil,log10
-from gpiozero import LED, Button
 
-## DEFINE
-def_button = 0 # 0 : button don't work, 1 : button work
 ## Variables
 continuer = 1
 vollvl = 50 #Niveau initial du volume
 fps = 60
 ## Variables globales pour la vitesse
 jspeed = -18*(60/fps)  #Vitesse de saut
-start_speed = 9*(60/fps) #Vitesse de défilement de départ
+start_speed = 5*(60/fps) #Vitesse de défilement de départ
 acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
 gravity = 1.3*(60/fps)**2   #Force de gravité
 
 # Configuration drivers
-os.environ['SDL_VIDEODRIVER'] = 'directfb'
+os.environ['SDL_VIDEODRIVER'] = 'fbcon'
 os.environ["SDL_FBDEV"] = "/dev/fb0"                          
 os.environ["SDL_NOMOUSE"] = "1"
 os.environ['SDL_AUDIODRIVER'] = 'alsa'
@@ -38,20 +35,27 @@ nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
 x_fen = 320
 y_fen = 240
 
+os.system('sh /etc/init.d/S00gif stop')
+
+pygame.display.init()
+fenetre = pygame.display.set_mode((x_fen,y_fen))
+# On enlève l'affichage de la souris
+pygame.mouse.set_visible(False)
+
 ## Chargement des images 
-fond_vert = pygame.image.load("./Resources/images/fond_vert.png")
-menu_fond = pygame.image.load("./Resources/images/menu.png")
-curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png")
-sol1 = pygame.image.load("./Resources/images/sol 1.png")
-sol2 = pygame.image.load("./Resources/images/sol 2.png")
-sol3 = pygame.image.load("./Resources/images/sol 3.png")
-sol4 = pygame.image.load("./Resources/images/sol 4.png")
-blob_dead = pygame.image.load("./Resources/images/blob dead.png")
-game_over_texte = pygame.image.load("./Resources/images/game over gameboy.png")
-cloud1 = pygame.image.load("./Resources/images/cloud 1.png")
-cloud2 = pygame.image.load("./Resources/images/cloud 2.png")
-cloud3 = pygame.image.load("./Resources/images/cloud 3.png")
-img_volume = pygame.image.load("./Resources/images/volume.png")
+fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
+menu_fond = pygame.image.load("./Resources/images/menu.png").convert_alpha()
+curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png").convert_alpha()
+sol1 = pygame.image.load("./Resources/images/sol 1.png").convert_alpha()
+sol2 = pygame.image.load("./Resources/images/sol 2.png").convert_alpha()
+sol3 = pygame.image.load("./Resources/images/sol 3.png").convert_alpha()
+sol4 = pygame.image.load("./Resources/images/sol 4.png").convert_alpha()
+blob_dead = pygame.image.load("./Resources/images/blob dead.png").convert_alpha()
+game_over_texte = pygame.image.load("./Resources/images/game over gameboy.png").convert_alpha()
+cloud1 = pygame.image.load("./Resources/images/cloud 1.png").convert_alpha()
+cloud2 = pygame.image.load("./Resources/images/cloud 2.png").convert_alpha()
+cloud3 = pygame.image.load("./Resources/images/cloud 3.png").convert_alpha()
+img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 
 
 ## Initialisation des Boutons et pins
@@ -60,58 +64,10 @@ img_volume = pygame.image.load("./Resources/images/volume.png")
 # 1) On crée des fonctions
 # Chacune de ces fonctions ajoute un event dans la liste des event. De cette façon, on garde la même manière de coder que si on utilisait les touches du clavier.
 
-if(def_button == 1):
-    def up_press():
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_UP))
-    def up_release():
-        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_UP))
-    def down_press():
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_DOWN))
-    def down_release():
-        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_DOWN))
-    def a_press():
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_SPACE))
-    def a_release():
-        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_SPACE))
-    def b_press():
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_ESCAPE))
-    def b_release():
-        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_ESCAPE))
-    def left_press():
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_LEFT))
-    def left_release():
-        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_LEFT))
-    def right_press():
-        pygame.event.post(pygame.event.Event(pygame.KEYDOWN, key=pygame.K_RIGHT))
-    def right_release():
-        pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_RIGHT))
-
-    # 2) On affecte chaque bouton au bon pin GPIO (voir la documentation de la PI ZERO (pinout PI ZERO) : https://pi4j.com/1.2/pins/model-zerow-rev1.html
-    up=Button(16, False, None, 0.075, 1, False, None)
-    right=Button(26, False, None, 0.075, 1, False, None)
-    down=Button(6, False, None, 0.075, 1, False, None)
-    left=Button(5, False, None, 0.075, 1, False, None)
-    b=Button(27, False, None, 0.075, 1, False, None)
-    a=Button(17, False, None, 0.075, 1, False, None)
-
-    # 3) On affecte à chaque état du bouton (pressé ou relaché) une fonction. Celle-ci sera appelé n'importe quand via interruptions.
-    up.when_pressed = up_press
-    up.when_released = up_release
-    right.when_pressed = right_press
-    right.when_released = right_release
-    down.when_pressed = down_press
-    down.when_released = down_release
-    left.when_pressed = left_press
-    left.when_released = left_release
-    a.when_pressed = a_press
-    a.when_released = a_release
-    b.when_pressed = b_press
-    b.when_released = b_release
-
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
-        self.image = pygame.image.load("./Resources/images/blob_base.png") # Image du blob
+        self.image = pygame.image.load("./Resources/images/blob_base.png").convert_alpha() # Image du blob
         self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
         self.rect = self.image.get_rect()
         self.blob_x = 10 # Coordonnée x par défaut du blob
@@ -128,7 +84,7 @@ class Blob(pygame.sprite.Sprite): # Classe du blob "debout"
 class Blob_crouch(pygame.sprite.Sprite): # Classe du blob "accroupi" 
     def __init__(self):
         super().__init__(all_sprite)  # Associe le sprite au groupe all_sprite
-        self.image = pygame.image.load("./Resources/images/blob crouch.png") # Image du blob accroupi
+        self.image = pygame.image.load("./Resources/images/blob crouch.png").convert_alpha() # Image du blob accroupi
         self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
         self.rect = self.image.get_rect() # Création du rectangle pour les collisions
         self.x = 0  #Initialisation de sa coordonnée x
@@ -143,11 +99,11 @@ class Blob_crouch(pygame.sprite.Sprite): # Classe du blob "accroupi"
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
-        self.large = pygame.image.load("./Resources/images/large object.png") #Chargement image large object
+        self.large = pygame.image.load("./Resources/images/large object.png").convert_alpha() #Chargement image large object
         self.mask_large = pygame.mask.from_surface(self.large)
-        self.small = pygame.image.load("./Resources/images/small object.png")  #Chargement image small object
+        self.small = pygame.image.load("./Resources/images/small object.png").convert_alpha()  #Chargement image small object
         self.mask_small = pygame.mask.from_surface(self.small)
-        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png") #Chargement image fantome
+        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha() #Chargement image fantome
         self.mask_fantome = pygame.mask.from_surface(self.fantome)
         self.mask = pygame.mask.from_surface(self.small) # initialisation à un petit obstacle
         self.rect =  self.small.get_rect() # Création du rectangle pour les collisions
@@ -454,6 +410,7 @@ class GameState():
 
         # On utilise un rectangle pour afficher le texte à l'intérieur et aligner à droite ce rectangle. On place ce rectangle au bon en endroit et le trick est joué.
         texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
+        #texte = font.render('Score: {0}'.format(int(clock.get_fps())), False, (48,98,48))  # "text", antialias, color
         text_rect = texte.get_rect()
         text_rect.right = 320 # align to right to 320px
         text_rect.y = 10 # Décale le rectangle de 10 px du haut de la fenêtre
@@ -634,12 +591,6 @@ obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
 
-os.system('sh /etc/init.d/S00gif stop')
-
-pygame.display.init()
-fenetre = pygame.display.set_mode((x_fen,y_fen))
-# On enlève l'affichage de la souris
-pygame.mouse.set_visible(False)
 ## Boucle infinie pour faire tourner le jeu
 
 
