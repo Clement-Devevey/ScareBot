@@ -3,8 +3,6 @@ import pygame, time, random, os, sys
 from pygame.locals import *
 from math import ceil,log10
 
-## DEFINE
-def_button = 0 # 0 : button don't work, 1 : button work
 ## Variables
 continuer = 1
 vollvl = 50 #Niveau initial du volume
