@@ -38,20 +38,27 @@ nbr_choix_menu = 2 # les deux choix du menu sont Play ou Quit
 x_fen = 320
 y_fen = 240
 
+os.system('sh /etc/init.d/S00gif stop')
+
+pygame.display.init()
+fenetre = pygame.display.set_mode((x_fen,y_fen))
+# On enlève l'affichage de la souris
+pygame.mouse.set_visible(False)
+
 ## Chargement des images 
-fond_vert = pygame.image.load("./Resources/images/fond_vert.png")
-menu_fond = pygame.image.load("./Resources/images/menu.png")
-curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png")
-sol1 = pygame.image.load("./Resources/images/sol 1.png")
-sol2 = pygame.image.load("./Resources/images/sol 2.png")
-sol3 = pygame.image.load("./Resources/images/sol 3.png")
-sol4 = pygame.image.load("./Resources/images/sol 4.png")
-blob_dead = pygame.image.load("./Resources/images/blob dead.png")
-game_over_texte = pygame.image.load("./Resources/images/game over gameboy.png")
-cloud1 = pygame.image.load("./Resources/images/cloud 1.png")
-cloud2 = pygame.image.load("./Resources/images/cloud 2.png")
-cloud3 = pygame.image.load("./Resources/images/cloud 3.png")
-img_volume = pygame.image.load("./Resources/images/volume.png")
+fond_vert = pygame.image.load("./Resources/images/fond_vert.png").convert()
+menu_fond = pygame.image.load("./Resources/images/menu.png").convert_alpha()
+curseur_selection = pygame.image.load("./Resources/images/curseur_selection_menu_gameboy.png").convert_alpha()
+sol1 = pygame.image.load("./Resources/images/sol 1.png").convert_alpha()
+sol2 = pygame.image.load("./Resources/images/sol 2.png").convert_alpha()
+sol3 = pygame.image.load("./Resources/images/sol 3.png").convert_alpha()
+sol4 = pygame.image.load("./Resources/images/sol 4.png").convert_alpha()
+blob_dead = pygame.image.load("./Resources/images/blob dead.png").convert_alpha()
+game_over_texte = pygame.image.load("./Resources/images/game over gameboy.png").convert_alpha()
+cloud1 = pygame.image.load("./Resources/images/cloud 1.png").convert_alpha()
+cloud2 = pygame.image.load("./Resources/images/cloud 2.png").convert_alpha()
+cloud3 = pygame.image.load("./Resources/images/cloud 3.png").convert_alpha()
+img_volume = pygame.image.load("./Resources/images/volume.png").convert_alpha()
 
 
 ## Initialisation des Boutons et pins
@@ -111,7 +118,7 @@ if(def_button == 1):
 class Blob(pygame.sprite.Sprite): # Classe du blob "debout" 
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
-        self.image = pygame.image.load("./Resources/images/blob_base.png") # Image du blob
+        self.image = pygame.image.load("./Resources/images/blob_base.png").convert_alpha() # Image du blob
         self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
         self.rect = self.image.get_rect()
         self.blob_x = 10 # Coordonnée x par défaut du blob
@@ -128,7 +135,7 @@ class Blob(pygame.sprite.Sprite): # Classe du blob "debout"
 class Blob_crouch(pygame.sprite.Sprite): # Classe du blob "accroupi" 
     def __init__(self):
         super().__init__(all_sprite)  # Associe le sprite au groupe all_sprite
-        self.image = pygame.image.load("./Resources/images/blob crouch.png") # Image du blob accroupi
+        self.image = pygame.image.load("./Resources/images/blob crouch.png").convert_alpha() # Image du blob accroupi
         self.mask = pygame.mask.from_surface(self.image) # Création du mask pour les collisions
         self.rect = self.image.get_rect() # Création du rectangle pour les collisions
         self.x = 0  #Initialisation de sa coordonnée x
@@ -143,11 +150,11 @@ class Blob_crouch(pygame.sprite.Sprite): # Classe du blob "accroupi"
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__(all_sprite) # Associe le sprite au groupe all_sprite
-        self.large = pygame.image.load("./Resources/images/large object.png") #Chargement image large object
+        self.large = pygame.image.load("./Resources/images/large object.png").convert_alpha() #Chargement image large object
         self.mask_large = pygame.mask.from_surface(self.large)
-        self.small = pygame.image.load("./Resources/images/small object.png")  #Chargement image small object
+        self.small = pygame.image.load("./Resources/images/small object.png").convert_alpha()  #Chargement image small object
         self.mask_small = pygame.mask.from_surface(self.small)
-        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png") #Chargement image fantome
+        self.fantome = pygame.image.load("./Resources/images/fantome gameboy.png").convert_alpha() #Chargement image fantome
         self.mask_fantome = pygame.mask.from_surface(self.fantome)
         self.mask = pygame.mask.from_surface(self.small) # initialisation à un petit obstacle
         self.rect =  self.small.get_rect() # Création du rectangle pour les collisions
@@ -300,9 +307,9 @@ class GameState():
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: # Si le joueur appuie sur le bouton qui correspond à échap : 
+            """if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE: # Si le joueur appuie sur le bouton qui correspond à échap : 
                 pygame.quit() # On quitte pygame
-                sys.exit() # On ferme la fenêtre
+                sys.exit() # On ferme la fenêtre"""
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN: # Si le joueur appuie sur le bouton qui correspond à "bas" 
                 self.choix_menu = (self.choix_menu+1)%nbr_choix_menu # on change la variable qui contient le choix du menu (pour rafficher le bon menu)
@@ -322,10 +329,10 @@ class GameState():
                     # pygame.display.set_caption("Blob Runner") # Nom de la fenêtre
                     self.state = 'game'
                     self.alive = True #Si jamais on retourne au menu, il faut remettre vivant à true
-                elif (self.choix_menu == 1):
+                """elif (self.choix_menu == 1):
                     pygame.quit()
                     pygame.mixer.quit()
-                    sys.exit()
+                    sys.exit()"""
 
             # Pour le réglage du volume, on utilise les flêches droites et gauches.
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
@@ -454,6 +461,7 @@ class GameState():
 
         # On utilise un rectangle pour afficher le texte à l'intérieur et aligner à droite ce rectangle. On place ce rectangle au bon en endroit et le trick est joué.
         texte = font.render('Score: {0}'.format(int(self.score)), False, (48,98,48))  # "text", antialias, color
+        #texte = font.render('Score: {0}'.format(int(clock.get_fps())), False, (48,98,48))  # "text", antialias, color
         text_rect = texte.get_rect()
         text_rect.right = 320 # align to right to 320px
         text_rect.y = 10 # Décale le rectangle de 10 px du haut de la fenêtre
@@ -634,12 +642,6 @@ obstacle = Obstacle() # Création d'un objet de type obstacle.
 blob_crouch = Blob_crouch() # Création d'un objet de type blob_crouch
 blob = Blob() # Création d'un objet blob
 
-os.system('sh /etc/init.d/S00gif stop')
-
-pygame.display.init()
-fenetre = pygame.display.set_mode((x_fen,y_fen))
-# On enlève l'affichage de la souris
-pygame.mouse.set_visible(False)
 ## Boucle infinie pour faire tourner le jeu
 
 
