@@ -9,7 +9,7 @@ vollvl = 50 #Niveau initial du volume
 fps = 60
 ## Variables globales pour la vitesse
 jspeed = -18*(60/fps)  #Vitesse de saut
-start_speed = 9*(60/fps) #Vitesse de défilement de départ
+start_speed = 5*(60/fps) #Vitesse de défilement de départ
 acc_speed = 0.005*(60/fps) #Accélération de la vitesse de défilement
 gravity = 1.3*(60/fps)**2   #Force de gravité
 
