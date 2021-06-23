@@ -1,0 +1,24 @@
+#!/bin/sh
+echo 0 > /sys/class/graphics/fbcon/cursor_blink
+fbcp-ili9341&
+chmod 777 /etc/gif.sh
+#fbv -d 1 /game/demon.png
+
+#! /bin/sh
+SNB=$(cat /proc/cpuinfo | grep Serial | cut -d ' ' -f 2)
+if [ "$SNB" == "10000000961cc0c4" ];
+then
+echo "Carte sans module I2S"
+echo "Serial number :" $SNB
+modprobe snd_bcm2835
+else
+echo "Carte avec module I2S"
+echo "Serial number :" $SNB
+modprobe snd_soc_bcm2835_i2s
+modprobe snd_soc_max98357a
+modprobe snd_soc_simple_card
+mv /etc/asound_max.conf /etc/asound.conf
+fi
+
+cd /game
+python3 mixerPYbot.py&
