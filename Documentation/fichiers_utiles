@@ -1,10 +1,11 @@
 Sous rootfs_overlay/game se trouvent tous les fichiers nécessaires au jeu : 
 > le fichier python du jeu : mixerPYbot.py.
 
-> le dossier Resources qui contient le dossier images (les images du jeu, la police d'écriture et les images du splash screen qui sont dans le dossier gif)
+> le dossier Resources qui contient : 
+  - le dossier images (les images du jeu, la police d'écriture et les images du splash screen qui sont dans le dossier gif)
 Le splash screen est une succession de 3 images png. On est obligé de faire comme ça, le GIF n'étant pas supporté.
 
-> Le dossier musiques qui contient la musiques principale et les sounds effects.
+  - Le dossier musiques qui contient la musiques principale et les sounds effects.
 Précision sur les musiques :on a du les passer par un logiciel pour en avoir une version mono, 16 bits, toujours en .wav
 
 > Il y aussi le fichier high_score.txt qui score le score maximal.
