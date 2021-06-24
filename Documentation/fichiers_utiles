@@ -1,0 +1,26 @@
+Sous rootfs_overlay/game se trouvent tous les fichiers nécessaires au jeu : 
+> le fichier python du jeu : mixerPYbot.py.
+
+> le dossier Resources qui contient le dossier images (les images du jeu, la police d'écriture et les images du splash screen qui sont dans le dossier gif)
+Le splash screen est une succession de 3 images png. On est obligé de faire comme ça, le GIF n'étant pas supporté.
+
+> Le dossier musiques qui contient la musiques principale et les sounds effects.
+Précision sur les musiques :on a du les passer par un logiciel pour en avoir une version mono, 16 bits, toujours en .wav
+
+> Il y aussi le fichier high_score.txt qui score le score maximal.
+Pour reset ce high_score, il suffit d'exécuter la commande suivante sous rootfs_overlay/game : python3 remise_score_zero.py
+
+Sous rootfs_overlay/etc se trouvent les fichiers qui s'exécutent au boot de la carte :
+> gif.sh qui est la boucle while affichant à l'écran les images du splash screen. Celui-ci sera lancé par un "service" dans init.d : S00gif (voir plus bas)
+
+> inittab : mieux vaut ne pas trop y toucher, c'est celui qui lance tous les services qu'il y a dans init.d de la forme SXXaaa avec XX un numéro et aaa le nom du service.
+L'avantage des services c'est qu'on peut les lancer au boot mais aussi les arrêter n'importe quand. Par exemple, pour la boucle qui lance le splash screen, il suffira de kill le service dans le python et le splash screen s'arrêtera.
+
+> asound_max.conf : ne pas toucher, active l'audio sur la carte.
+
+> dans le dossier init.d : se trouve les services qu'on lance au boot : S00gif et S01game. 
+S00gif exécute le script gif.sh. Lance le splash screen en affichant en boucle les 3 images png.
+S01game désactive l'affichage du curseur puis active l'affichage de l'écran, et enfin lance l'exécution du jeu.
+
+Conclusion pour rajouter un jeu, il faut créer un nouveau python 'menu.py' et le mettre dans game. Changer dans le fichier S01game la dernière ligne par python3 menu.py.
+Pour exécuter un autre python il suffit d'ajouter la ligne os.system('python3 menu.py')
