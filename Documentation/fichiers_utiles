@@ -1,4 +1,6 @@
-Sous rootfs_overlay/game se trouvent tous les fichiers nécessaires au jeu : 
+Sous la branche BUILDROOT :
+
+Dans rootfs_overlay/game se trouvent tous les fichiers nécessaires au jeu : 
 > le fichier python du jeu : mixerPYbot.py.
 
 > le dossier Resources qui contient : 
