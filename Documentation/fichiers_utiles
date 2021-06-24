@@ -3,12 +3,12 @@ Sous rootfs_overlay/game se trouvent tous les fichiers nécessaires au jeu :
 
 > le dossier Resources qui contient : 
   - le dossier images (les images du jeu, la police d'écriture et les images du splash screen qui sont dans le dossier gif)
-Le splash screen est une succession de 3 images png. On est obligé de faire comme ça, le GIF n'étant pas supporté.
+  Le splash screen est une succession de 3 images png. On est obligé de faire comme ça, le GIF n'étant pas supporté.
 
   - Le dossier musiques qui contient la musiques principale et les sounds effects.
 Précision sur les musiques :on a du les passer par un logiciel pour en avoir une version mono, 16 bits, toujours en .wav
 
-> Il y aussi le fichier high_score.txt qui score le score maximal.
+  - Il y aussi le fichier high_score.txt qui score le score maximal.
 Pour reset ce high_score, il suffit d'exécuter la commande suivante sous rootfs_overlay/game : python3 remise_score_zero.py
 ---
 Sous rootfs_overlay/etc se trouvent les fichiers qui s'exécutent au boot de la carte :
